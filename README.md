@@ -31,6 +31,7 @@
 ## 🎯 The Problem We Solve
 
 Logistics and transport companies running operations on spreadsheets and paper logs struggle with operational inefficiencies:
+
 1. **Double-Booking & Dispatch Conflicts**: Vehicles in active maintenance (`IN_SHOP`) or drivers with expired licenses get dispatched by mistake.
 2. **Overweight Cargo Dispatches**: Vehicles are overloaded beyond their physical limitations, risking safety violations, road damage, and truck wear.
 3. **Siloed Financials & Odometer Gaps**: Fuel logs and miscellaneous expenses are disconnected from the trips themselves, preventing accurate calculations of **Vehicle ROI** or true **Operational Costs**.
@@ -43,19 +44,21 @@ Logistics and transport companies running operations on spreadsheets and paper l
 ## 🚀 What We Built (Key Modules)
 
 ### 1. Unified Monorepo Suite
-*   **Web App (Frontend)**: React 18 dashboard styling featuring a dark-themed glassmorphism interface, interactive charts (Recharts), customizable layouts, and responsive components.
-*   **API Service (Backend)**: Express + TypeScript server implementing token authentication, role-based guard middlewares, Zod schema validation, and transactional Prisma queries.
+
+- **Web App (Frontend)**: React 18 dashboard styling featuring a dark-themed glassmorphism interface, interactive charts (Recharts), customizable layouts, and responsive components.
+- **API Service (Backend)**: Express + TypeScript server implementing token authentication, role-based guard middlewares, Zod schema validation, and transactional Prisma queries.
 
 ### 2. Module Breakdown
-*   **Role Switcher Login (`/login`)**: Direct 1-click switcher to test user journeys across 4 roles: **Fleet Manager**, **Driver**, **Safety Officer**, and **Financial Analyst**.
-*   **KPI Command Center (`/dashboard`)**: Displays real-time aggregations (active/available vehicles, drivers on duty), **Fleet Utilization %**, fuel efficiency statistics, and a unified recent activity log.
-*   **Fleet Registry (`/vehicles`)**: Full vehicle management (trucks, vans, buses, cars). Enables tracking model specifications, regions, max capacity (kg), and status. Provides a soft-retire option.
-*   **Driver Registry (`/drivers`)**: Tracks contact cards, license classifications, and expiration dates. Highlights driver safety scores (`0-100`) and displays warning banners for expired or near-expiration licenses.
-*   **Split-Screen Trip Dispatcher (`/trips`)**: Side-by-side trip creation form and live dispatch board. Form validates physical vehicle load capacity before submission. Board handles transitions (`DRAFT` → `DISPATCHED` → `COMPLETED` / `CANCELLED`) with a dynamic stepper.
-*   **Maintenance Ledger (`/maintenance`)**: Log vehicle checkups and repair costs. Submitting a log automatically locks the vehicle status to `IN_SHOP` to exclude it from dispatching.
-*   **Expense & Fuel Ledgers (`/finance`)**: Records individual fuel logs (liters + cost) and general logistics costs (tolls, maintenance, other) to build a unified operational cost sheet.
-*   **Fleet Analytics & PDF/CSV Export (`/reports`)**: Aggregates top-cost vehicles, calculates ROI, charts monthly expenditures, and compiles a one-click CSV report generator.
-*   **Settings (`/settings`)**: General operations configurations showing depot names, currency formatting (`₹`, `$`), and a visual Role-to-Module access matrix.
+
+- **Role Switcher Login (`/login`)**: Direct 1-click switcher to test user journeys across 4 roles: **Fleet Manager**, **Driver**, **Safety Officer**, and **Financial Analyst**.
+- **KPI Command Center (`/dashboard`)**: Displays real-time aggregations (active/available vehicles, drivers on duty), **Fleet Utilization %**, fuel efficiency statistics, and a unified recent activity log.
+- **Fleet Registry (`/vehicles`)**: Full vehicle management (trucks, vans, buses, cars). Enables tracking model specifications, regions, max capacity (kg), and status. Provides a soft-retire option.
+- **Driver Registry (`/drivers`)**: Tracks contact cards, license classifications, and expiration dates. Highlights driver safety scores (`0-100`) and displays warning banners for expired or near-expiration licenses.
+- **Split-Screen Trip Dispatcher (`/trips`)**: Side-by-side trip creation form and live dispatch board. Form validates physical vehicle load capacity before submission. Board handles transitions (`DRAFT` → `DISPATCHED` → `COMPLETED` / `CANCELLED`) with a dynamic stepper.
+- **Maintenance Ledger (`/maintenance`)**: Log vehicle checkups and repair costs. Submitting a log automatically locks the vehicle status to `IN_SHOP` to exclude it from dispatching.
+- **Expense & Fuel Ledgers (`/finance`)**: Records individual fuel logs (liters + cost) and general logistics costs (tolls, maintenance, other) to build a unified operational cost sheet.
+- **Fleet Analytics & PDF/CSV Export (`/reports`)**: Aggregates top-cost vehicles, calculates ROI, charts monthly expenditures, and compiles a one-click CSV report generator.
+- **Settings (`/settings`)**: General operations configurations showing depot names, currency formatting (`₹`, `$`), and a visual Role-to-Module access matrix.
 
 ---
 
@@ -63,7 +66,7 @@ Logistics and transport companies running operations on spreadsheets and paper l
 
 | Layer | Frontend (`apps/web`) | Backend (`apps/api`) |
 | :--- | :--- | :--- |
-| **Framework / Runtime**| **React 18 + Vite** | **Node.js + Express (TypeScript)** |
+| **Framework / Runtime** | **React 18 + Vite** | **Node.js + Express (TypeScript)** |
 | **Language** | TypeScript (v5.5) | TypeScript (v5.5) |
 | **Database ORM** | — | **Prisma ORM** |
 | **Database Engine** | Local Storage (Mock fallback) | **SQLite** (`dev.db` for local velocity) |
@@ -104,6 +107,7 @@ TransitOps uses a modern three-tier pipeline designed for high performance and i
 ```
 
 ### Flow Walkthrough
+
 1. **User Request**: The user triggers an action (e.g., clicking *Complete Trip*).
 2. **Auth & RBAC Middleware**: The API validates the client JWT bearer token, checks the user's role, and ensures permission to proceed.
 3. **Zod Validator**: Request payloads are structurally validated (e.g., verifying `actual_distance_km` is positive).
@@ -232,9 +236,9 @@ API routes are protected via roles matching the frontend requirements:
 | Role | Auth Endpoint | Vehicles | Drivers | Trips | Maintenance | Finance | Dashboard/KPIs |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Fleet Manager** | ✅ | **Full CRUD** | **Full CRUD** | View Only | **Full CRUD** | View Only | View KPIs |
-| **Driver** | ✅ | View Only | View Only | **Full (DRAFT to End)**| View Only | Log Fuel | View KPIs |
+| **Driver** | ✅ | View Only | View Only | **Full (DRAFT to End)** | View Only | Log Fuel | View KPIs |
 | **Safety Officer** | ✅ | View Only | **Full CRUD** | View Only | View Only | View Only | View KPIs |
-| **Financial Analyst**| ✅ | View Only | View Only | View Only | View Only | **Full CRUD** | View KPIs |
+| **Financial Analyst** | ✅ | View Only | View Only | View Only | View Only | **Full CRUD** | View KPIs |
 
 ---
 
@@ -243,11 +247,14 @@ API routes are protected via roles matching the frontend requirements:
 Both the frontend and backend are pre-configured to run concurrently on local development ports.
 
 ### Prerequisites
-*   **Node.js (v20+)**
-*   **npm**
+
+- **Node.js (v20+)**
+- **npm**
 
 ### Step 1: Install Dependencies
+
 Run the install command in both monorepo folders:
+
 ```bash
 # In the root repository directory
 cd apps/web
@@ -258,7 +265,9 @@ npm install
 ```
 
 ### Step 2: Database Initialization & Seeding (SQLite)
+
 Create the local SQLite database file, apply the schema, and seed the demo credentials:
+
 ```bash
 cd apps/api
 
@@ -273,6 +282,7 @@ npx tsx prisma/seed.ts
 ```
 
 ### Step 3: Start the Application Servers
+
 Run the dev commands in separate terminals:
 
 ```bash
@@ -328,12 +338,12 @@ Oddo-Hackthon-project/
 
 To see the pipeline working from end-to-end, use this flow:
 
-1.  **Sign In**: Navigate to [http://localhost:3001/](http://localhost:3001/). Choose **Fleet Manager** or **Driver** and log in with the password `demo123`.
-2.  **Generate a Draft Trip**: Select a vehicle (e.g. `VAN-05`) and a driver (e.g. `Alex`). Enter a cargo weight that is within limits. Save the trip to create a `DRAFT`.
-3.  **Validate Load Rules**: Try creating a trip with cargo weight `700 kg` for `VAN-05` (500 kg limit). The system will alert you and prevent dispatch.
-4.  **Dispatch the Trip**: Under the *Live Board*, click the **Dispatch** button on your Draft Trip. The trip status shifts to `DISPATCHED`. If you check the *Vehicles* and *Drivers* pages, both entities are now automatically flagged as `ON_TRIP`.
-5.  **Log Fuel**: Go to the *Finance* panel, click *Log Fuel*, select the active vehicle, and enter liters and cost. The operational cost dashboard aggregates this automatically.
-6.  **Complete the Trip**: Return to the trips panel, click **Complete**, and input an actual distance (e.g. `120 km`). The trip shifts to `COMPLETED`, the vehicle and driver return to `AVAILABLE` status, and the vehicle's odometer updates to reflect the new mileage.
+1. **Sign In**: Navigate to [http://localhost:3001/](http://localhost:3001/). Choose **Fleet Manager** or **Driver** and log in with the password `demo123`.
+2. **Generate a Draft Trip**: Select a vehicle (e.g. `VAN-05`) and a driver (e.g. `Alex`). Enter a cargo weight that is within limits. Save the trip to create a `DRAFT`.
+3. **Validate Load Rules**: Try creating a trip with cargo weight `700 kg` for `VAN-05` (500 kg limit). The system will alert you and prevent dispatch.
+4. **Dispatch the Trip**: Under the *Live Board*, click the **Dispatch** button on your Draft Trip. The trip status shifts to `DISPATCHED`. If you check the *Vehicles* and *Drivers* pages, both entities are now automatically flagged as `ON_TRIP`.
+5. **Log Fuel**: Go to the *Finance* panel, click *Log Fuel*, select the active vehicle, and enter liters and cost. The operational cost dashboard aggregates this automatically.
+6. **Complete the Trip**: Return to the trips panel, click **Complete**, and input an actual distance (e.g. `120 km`). The trip shifts to `COMPLETED`, the vehicle and driver return to `AVAILABLE` status, and the vehicle's odometer updates to reflect the new mileage.
 
 ---
 

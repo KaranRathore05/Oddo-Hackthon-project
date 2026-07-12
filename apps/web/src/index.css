@@ -56,13 +56,14 @@
 }
 
 @layer components {
+
   /* Glass Card */
   .glass-card {
     @apply relative overflow-hidden rounded-2xl;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.37),
       inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
@@ -157,12 +158,10 @@
   .shimmer::after {
     content: '';
     @apply absolute inset-0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.04) 50%,
-      transparent 100%
-    );
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.04) 50%,
+        transparent 100%);
     background-size: 200% 100%;
     animation: shimmer 2s linear infinite;
   }
@@ -200,7 +199,7 @@
     padding: 1px;
   }
 
-  .border-gradient > * {
+  .border-gradient>* {
     @apply rounded-2xl bg-charcoal;
   }
 }
@@ -208,7 +207,6 @@
 @layer utilities {
   .hide-scrollbar {
     -ms-overflow-style: none;
-    scrollbar-width: none;
   }
 
   .hide-scrollbar::-webkit-scrollbar {
@@ -216,7 +214,6 @@
   }
 
   .text-balance {
-    text-wrap: balance;
   }
 
   .perspective-1000 {
