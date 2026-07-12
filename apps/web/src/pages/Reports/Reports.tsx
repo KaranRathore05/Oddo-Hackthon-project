@@ -191,6 +191,8 @@ export default function Reports() {
                   <RTooltip
                     cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                     contentStyle={{ background: '#12121A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', fontSize: 12 }}
+                    itemStyle={{ color: '#fff' }}
+                    labelStyle={{ color: '#fff' }}
                     formatter={(value: number) => [formatCurrency(value), 'Revenue']}
                   />
                   <Bar dataKey="revenue" radius={[6, 6, 0, 0]} activeBar={false}>
@@ -225,6 +227,8 @@ export default function Reports() {
                   <RTooltip
                     cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                     contentStyle={{ background: '#12121A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', fontSize: 12 }}
+                    itemStyle={{ color: '#fff' }}
+                    labelStyle={{ color: '#fff' }}
                     formatter={(value: number) => [formatCurrency(value), 'Cost']}
                   />
                   <Bar dataKey="cost" radius={[0, 6, 6, 0]} activeBar={false}>
