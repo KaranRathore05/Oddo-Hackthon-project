@@ -1,0 +1,133 @@
+// ──────────────────────────────────────────────────────────────
+// TransitOps — Prisma Schema (SQLite for hackathon speed)
+// ──────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── User ────────────────────────────────────────────────────
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password_hash String
+  name          String
+  role          String   @default("DRIVER") // FLEET_MANAGER | DRIVER | SAFETY_OFFICER | FINANCIAL_ANALYST
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  trips_created Trip[] @relation("TripCreator")
+}
+
+// ─── Vehicle ─────────────────────────────────────────────────
+model Vehicle {
+  id                  String   @id @default(uuid())
+  registration_number String   @unique
+  name_model          String
+  type                String   @default("OTHER") // TRUCK | VAN | BUS | CAR | OTHER
+  max_load_capacity_kg Float
+  odometer_km         Float    @default(0)
+  acquisition_cost    Float
+  status              String   @default("AVAILABLE") // AVAILABLE | ON_TRIP | IN_SHOP | RETIRED
+  region              String?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  trips           Trip[]
+  maintenance_logs MaintenanceLog[]
+  fuel_logs       FuelLog[]
+  expenses        Expense[]
+}
+
+// ─── Driver ──────────────────────────────────────────────────
+model Driver {
+  id                  String   @id @default(uuid())
+  name                String
+  license_number      String   @unique
+  license_category    String
+  license_expiry_date DateTime
+  contact_number      String
+  safety_score        Int      @default(100)
+  status              String   @default("AVAILABLE") // AVAILABLE | ON_TRIP | OFF_DUTY | SUSPENDED
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  trips Trip[]
+}
+
+// ─── Trip ────────────────────────────────────────────────────
+model Trip {
+  id                   String    @id @default(uuid())
+  source               String
+  destination          String
+  vehicle_id           String
+  driver_id            String
+  cargo_weight_kg      Float
+  planned_distance_km  Float
+  actual_distance_km   Float?
+  fuel_consumed_liters Float?
+  revenue              Float?
+  status               String    @default("DRAFT") // DRAFT | DISPATCHED | COMPLETED | CANCELLED
+  created_by           String?
+  dispatched_at        DateTime?
+  completed_at         DateTime?
+  cancelled_at         DateTime?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+
+  vehicle  Vehicle  @relation(fields: [vehicle_id], references: [id])
+  driver   Driver   @relation(fields: [driver_id], references: [id])
+  creator  User?    @relation("TripCreator", fields: [created_by], references: [id])
+  fuel_logs FuelLog[]
+  expenses  Expense[]
+}
+
+// ─── MaintenanceLog ──────────────────────────────────────────
+model MaintenanceLog {
+  id          String    @id @default(uuid())
+  vehicle_id  String
+  type        String
+  description String?
+  cost        Float
+  status      String    @default("OPEN") // OPEN | CLOSED
+  opened_at   DateTime  @default(now())
+  closed_at   DateTime?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  vehicle Vehicle @relation(fields: [vehicle_id], references: [id])
+}
+
+// ─── FuelLog ─────────────────────────────────────────────────
+model FuelLog {
+  id         String   @id @default(uuid())
+  vehicle_id String
+  trip_id    String?
+  liters     Float
+  cost       Float
+  date       DateTime
+  created_at DateTime @default(now())
+
+  vehicle Vehicle @relation(fields: [vehicle_id], references: [id])
+  trip    Trip?   @relation(fields: [trip_id], references: [id])
+}
+
+// ─── Expense ─────────────────────────────────────────────────
+model Expense {
+  id         String   @id @default(uuid())
+  vehicle_id String?
+  trip_id    String?
+  category   String   // TOLL | MAINTENANCE | OTHER
+  amount     Float
+  date       DateTime
+  notes      String?
+  created_at DateTime @default(now())
+
+  vehicle Vehicle? @relation(fields: [vehicle_id], references: [id])
+  trip    Trip?    @relation(fields: [trip_id], references: [id])
+}
