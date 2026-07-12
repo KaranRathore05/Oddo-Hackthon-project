@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -5,10 +6,24 @@ import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { CommandPalette } from './CommandPalette';
 import { useThemeStore } from '@/store/themeStore';
+import { useVehicleStore } from '@/store/vehicleStore';
+import { useDriverStore } from '@/store/driverStore';
+import { useTripStore } from '@/store/tripStore';
+import { useMaintenanceStore } from '@/store/maintenanceStore';
+import { useFinanceStore } from '@/store/financeStore';
 
 export function AppLayout() {
   const { sidebarCollapsed } = useThemeStore();
   const location = useLocation();
+
+  useEffect(() => {
+    // Fetch initial data on mount
+    useVehicleStore.getState().fetchVehicles();
+    useDriverStore.getState().fetchDrivers();
+    useTripStore.getState().fetchTrips();
+    useMaintenanceStore.getState().fetchMaintenanceLogs();
+    useFinanceStore.getState().fetchFinanceData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-charcoal">

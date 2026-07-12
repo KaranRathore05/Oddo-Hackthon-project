@@ -1,26 +1,23 @@
-export interface MaintenanceRecord {
-  id: string;
-  vehicleId: string;
-  type: 'SCHEDULED' | 'EMERGENCY' | 'INSPECTION';
-  description: string;
-  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
-  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  scheduledDate: string;
-  completedDate?: string;
-  cost: number;
-  technicianName?: string;
-}
+import { apiClient } from './apiClient';
+import type { MaintenanceLog } from '@/types';
 
 export const maintenanceService = {
-  async getMaintenanceRecords(): Promise<MaintenanceRecord[]> {
-    return Promise.resolve([]);
+  async getMaintenanceLogs(): Promise<MaintenanceLog[]> {
+    return apiClient.get<MaintenanceLog[]>('/maintenance');
   },
 
-  async getMaintenanceById(_id: string): Promise<MaintenanceRecord | null> {
-    return Promise.resolve(null);
+  async getMaintenanceById(id: string): Promise<MaintenanceLog> {
+    return apiClient.get<MaintenanceLog>(`/maintenance/${id}`);
   },
 
-  async createMaintenanceRecord(_record: Partial<MaintenanceRecord>): Promise<MaintenanceRecord | null> {
-    return Promise.resolve(null);
+  async createMaintenanceLog(record: Partial<MaintenanceLog>): Promise<MaintenanceLog> {
+    return apiClient.post<MaintenanceLog>('/maintenance', record);
+  },
+
+  async closeMaintenanceLog(id: string, data: { cost: number; description?: string }): Promise<MaintenanceLog> {
+    return apiClient.request<MaintenanceLog>(`/maintenance/${id}/close`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    });
   },
 };

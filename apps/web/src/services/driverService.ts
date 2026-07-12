@@ -1,30 +1,28 @@
-export interface Driver {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  licenseNumber: string;
-  licenseExpiry: string;
-  status: 'AVAILABLE' | 'ON_TRIP' | 'OFF_DUTY' | 'SUSPENDED';
-  safetyScore: number;
-  totalTrips: number;
-  avatar?: string;
-}
+import { apiClient } from './apiClient';
+import type { Driver } from '@/types';
 
 export const driverService = {
   async getDrivers(): Promise<Driver[]> {
-    return Promise.resolve([]);
+    return apiClient.get<Driver[]>('/drivers');
   },
 
-  async getDriverById(_id: string): Promise<Driver | null> {
-    return Promise.resolve(null);
+  async getDriverById(id: string): Promise<Driver> {
+    return apiClient.get<Driver>(`/drivers/${id}`);
   },
 
-  async createDriver(_driver: Partial<Driver>): Promise<Driver | null> {
-    return Promise.resolve(null);
+  async createDriver(driver: Partial<Driver>): Promise<Driver> {
+    return apiClient.post<Driver>('/drivers', driver);
   },
 
-  async updateDriver(_id: string, _driver: Partial<Driver>): Promise<Driver | null> {
-    return Promise.resolve(null);
+  async updateDriver(id: string, driver: Partial<Driver>): Promise<Driver> {
+    return apiClient.put<Driver>(`/drivers/${id}`, driver);
   },
+  
+  async suspendDriver(id: string): Promise<Driver> {
+    return apiClient.request<Driver>(`/drivers/${id}/suspend`, { method: 'PATCH' });
+  },
+  
+  async reinstateDriver(id: string): Promise<Driver> {
+    return apiClient.request<Driver>(`/drivers/${id}/reinstate`, { method: 'PATCH' });
+  }
 };

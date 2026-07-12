@@ -78,7 +78,7 @@ export default function Vehicles() {
     setShowForm(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
 
@@ -98,10 +98,10 @@ export default function Vehicles() {
     };
 
     if (editingVehicle) {
-      const result = updateVehicle(editingVehicle.id, data);
+      const result = await updateVehicle(editingVehicle.id, data);
       if ('error' in result) { setFormError(result.error); return; }
     } else {
-      const result = addVehicle(data);
+      const result = await addVehicle(data);
       if ('error' in result) { setFormError(result.error); return; }
     }
 
@@ -109,12 +109,13 @@ export default function Vehicles() {
     setForm(initialForm);
   };
 
-  const handleRetire = () => {
+  const handleRetire = async () => {
     if (!retireTarget) return;
-    const result = retireVehicle(retireTarget.id);
+    const result = await retireVehicle(retireTarget.id);
     if ('error' in result) { setFormError(result.error); return; }
     setRetireTarget(null);
   };
+
 
   const columns = [
     { key: 'registration_number', header: 'Reg. Number', render: (v: Vehicle) => (

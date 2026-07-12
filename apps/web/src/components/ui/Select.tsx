@@ -49,11 +49,11 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             value={value}
             onChange={(e) => onChange?.(e.target.value)}
             className={cn(
-              'w-full bg-transparent px-3.5 py-3 text-sm text-white appearance-none',
+              'w-full bg-transparent px-3.5 py-3 text-sm appearance-none transition-colors',
+              hasValue ? 'text-white' : (isFocused || !label ? 'text-muted/50' : 'text-transparent'),
               'focus:outline-none cursor-pointer',
               icon && 'pl-2',
-              label && 'pt-5 pb-1.5',
-              !hasValue && 'text-muted/50',
+              label && 'pt-6 pb-2',
               className
             )}
             onFocus={() => setIsFocused(true)}
@@ -84,7 +84,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
                 'absolute left-3.5 transition-all duration-200 pointer-events-none',
                 icon && 'left-10',
                 isFocused || hasValue
-                  ? 'top-1.5 text-2xs font-medium text-cyan'
+                  ? cn('top-2 text-2xs font-medium', isFocused ? 'text-cyan' : 'text-muted/70')
                   : 'top-1/2 -translate-y-1/2 text-sm text-muted/60'
               )}
             >

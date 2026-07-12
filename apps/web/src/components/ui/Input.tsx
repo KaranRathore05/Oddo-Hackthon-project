@@ -38,11 +38,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             type={type}
             className={cn(
-              'w-full bg-transparent px-3.5 py-3 text-sm text-white',
-              'placeholder:text-muted/50',
+              'w-full bg-transparent px-3.5 py-3 text-sm transition-colors',
+              (type === 'date' && !hasValue && !isFocused && label) ? 'text-transparent' : 'text-white',
+              isFocused || !label ? 'placeholder:text-muted/50' : 'placeholder:text-transparent',
               'focus:outline-none',
               icon && 'pl-2',
-              label && 'pt-5 pb-1.5',
+              label && 'pt-6 pb-2',
               className
             )}
             onFocus={(e) => {
@@ -61,7 +62,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 'absolute left-3.5 transition-all duration-200 pointer-events-none',
                 icon && 'left-10',
                 isFocused || hasValue
-                  ? 'top-1.5 text-2xs font-medium text-cyan'
+                  ? cn('top-2 text-2xs font-medium', isFocused ? 'text-cyan' : 'text-muted/70')
                   : 'top-1/2 -translate-y-1/2 text-sm text-muted/60'
               )}
             >

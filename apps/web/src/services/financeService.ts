@@ -1,38 +1,20 @@
-export interface Expense {
-  id: string;
-  vehicleId: string;
-  category: 'FUEL' | 'MAINTENANCE' | 'INSURANCE' | 'TOLL' | 'OTHER';
-  amount: number;
-  date: string;
-  description: string;
-  receiptUrl?: string;
-}
-
-export interface FuelRecord {
-  id: string;
-  vehicleId: string;
-  liters: number;
-  costPerLiter: number;
-  totalCost: number;
-  odometerReading: number;
-  date: string;
-  station?: string;
-}
+import { apiClient } from './apiClient';
+import type { Expense, FuelLog } from '@/types';
 
 export const financeService = {
   async getExpenses(): Promise<Expense[]> {
-    return Promise.resolve([]);
+    return apiClient.get<Expense[]>('/finance/expenses');
   },
 
-  async getFuelRecords(): Promise<FuelRecord[]> {
-    return Promise.resolve([]);
+  async getFuelLogs(): Promise<FuelLog[]> {
+    return apiClient.get<FuelLog[]>('/finance/fuel-logs');
   },
 
-  async createExpense(_expense: Partial<Expense>): Promise<Expense | null> {
-    return Promise.resolve(null);
+  async createExpense(expense: Partial<Expense>): Promise<Expense> {
+    return apiClient.post<Expense>('/finance/expenses', expense);
   },
 
-  async createFuelRecord(_record: Partial<FuelRecord>): Promise<FuelRecord | null> {
-    return Promise.resolve(null);
+  async createFuelLog(record: Partial<FuelLog>): Promise<FuelLog> {
+    return apiClient.post<FuelLog>('/finance/fuel-logs', record);
   },
 };

@@ -4,8 +4,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Zap, ArrowRight, Shield, Truck, Users, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { useAuthStore, DEMO_USERS } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
+import { authService } from '@/services/authService';
 import type { UserRole } from '@/types';
+
+const DEMO_EMAILS: Record<UserRole, string> = {
+  FLEET_MANAGER: 'manager@transitops.io',
+  DRIVER: 'driver@transitops.io',
+  SAFETY_OFFICER: 'safety@transitops.io',
+  FINANCIAL_ANALYST: 'finance@transitops.io',
+};
 
 const ROLE_OPTIONS: { role: UserRole; label: string; icon: React.ReactNode; desc: string }[] = [
   { role: 'FLEET_MANAGER', label: 'Fleet Manager', icon: <Truck className="w-4 h-4" />, desc: 'Full access to vehicles, maintenance & reports' },
@@ -28,16 +36,18 @@ export default function Login() {
     setIsLoading(true);
     setError('');
 
-    // Demo login — use selected role
-    setTimeout(() => {
-      const user = DEMO_USERS[selectedRole];
-      login(
-        { ...user, email: email || user.email },
-        `demo-jwt-token-${selectedRole}`
-      );
-      setIsLoading(false);
+    try {
+      const loginEmail = email || DEMO_EMAILS[selectedRole];
+      const loginPassword = password || 'demo123';
+      
+      const res = await authService.login({ email: loginEmail, password: loginPassword });
+      login(res.user, res.token);
       navigate('/dashboard');
-    }, 800);
+    } catch (err: any) {
+      setError(err?.error?.message || 'Failed to login');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -154,7 +164,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               icon={<Mail className="w-4 h-4" />}
-              placeholder={DEMO_USERS[selectedRole].email}
+              placeholder={DEMO_EMAILS[selectedRole]}
               error={error}
             />
 

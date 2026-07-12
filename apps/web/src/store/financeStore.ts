@@ -1,7 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { FuelLog, Expense, ExpenseCategory } from '@/types';
-import { generateId, nowISO } from '@/types';
+import { financeService } from '@/services/financeService';
 
 interface CreateFuelLogInput {
   vehicle_id: string;
@@ -23,8 +22,11 @@ interface CreateExpenseInput {
 interface FinanceState {
   fuelLogs: FuelLog[];
   expenses: Expense[];
-  addFuelLog: (data: CreateFuelLogInput) => FuelLog;
-  addExpense: (data: CreateExpenseInput) => Expense;
+  isLoading: boolean;
+  error: string | null;
+  fetchFinanceData: () => Promise<void>;
+  addFuelLog: (data: CreateFuelLogInput) => Promise<FuelLog | { error: string }>;
+  addExpense: (data: CreateExpenseInput) => Promise<Expense | { error: string }>;
   getFuelLogsByVehicle: (vehicleId: string) => FuelLog[];
   getExpensesByVehicle: (vehicleId: string) => Expense[];
   getTotalFuelCost: (vehicleId?: string) => number;
@@ -33,64 +35,68 @@ interface FinanceState {
 }
 
 export const useFinanceStore = create<FinanceState>()(
-  persist(
-    (set, get) => ({
-      fuelLogs: [],
-      expenses: [],
+  (set, get) => ({
+    fuelLogs: [],
+    expenses: [],
+    isLoading: false,
+    error: null,
 
-      addFuelLog: (data) => {
-        const log: FuelLog = {
-          id: generateId(),
-          vehicle_id: data.vehicle_id,
-          trip_id: data.trip_id,
-          liters: data.liters,
-          cost: data.cost,
-          date: data.date,
-          created_at: nowISO(),
-        };
-        set((s) => ({ fuelLogs: [...s.fuelLogs, log] }));
-        return log;
-      },
+    fetchFinanceData: async () => {
+      set({ isLoading: true, error: null });
+      try {
+        const [fuelLogs, expenses] = await Promise.all([
+          financeService.getFuelLogs(),
+          financeService.getExpenses()
+        ]);
+        set({ fuelLogs, expenses, isLoading: false });
+      } catch (err: any) {
+        set({ error: err?.error?.message || 'Failed to fetch finance data', isLoading: false });
+      }
+    },
 
-      addExpense: (data) => {
-        const expense: Expense = {
-          id: generateId(),
-          vehicle_id: data.vehicle_id,
-          trip_id: data.trip_id,
-          category: data.category,
-          amount: data.amount,
-          date: data.date,
-          notes: data.notes,
-          created_at: nowISO(),
-        };
-        set((s) => ({ expenses: [...s.expenses, expense] }));
-        return expense;
-      },
+    addFuelLog: async (data) => {
+      try {
+        const result = await financeService.createFuelLog(data);
+        set((s) => ({ fuelLogs: [...s.fuelLogs, result] }));
+        return result;
+      } catch (err: any) {
+        return { error: err?.error?.message || 'Failed to create fuel log' };
+      }
+    },
 
-      getFuelLogsByVehicle: (vehicleId) =>
-        get().fuelLogs.filter(f => f.vehicle_id === vehicleId),
+    addExpense: async (data) => {
+      try {
+        const result = await financeService.createExpense(data);
+        set((s) => ({ expenses: [...s.expenses, result] }));
+        return result;
+      } catch (err: any) {
+        return { error: err?.error?.message || 'Failed to create expense' };
+      }
+    },
 
-      getExpensesByVehicle: (vehicleId) =>
-        get().expenses.filter(e => e.vehicle_id === vehicleId),
+    getFuelLogsByVehicle: (vehicleId) =>
+      get().fuelLogs.filter(f => f.vehicle_id === vehicleId),
 
-      getTotalFuelCost: (vehicleId) => {
-        const logs = vehicleId
-          ? get().fuelLogs.filter(f => f.vehicle_id === vehicleId)
-          : get().fuelLogs;
-        return logs.reduce((sum, f) => sum + f.cost, 0);
-      },
+    getExpensesByVehicle: (vehicleId) =>
+      get().expenses.filter(e => e.vehicle_id === vehicleId),
 
-      getTotalExpenses: (vehicleId) => {
-        const exps = vehicleId
-          ? get().expenses.filter(e => e.vehicle_id === vehicleId)
-          : get().expenses;
-        return exps.reduce((sum, e) => sum + e.amount, 0);
-      },
+    getTotalFuelCost: (vehicleId) => {
+      const logs = vehicleId
+        ? get().fuelLogs.filter(f => f.vehicle_id === vehicleId)
+        : get().fuelLogs;
+      return logs.reduce((sum, f) => sum + f.cost, 0);
+    },
 
-      getTotalOperationalCost: (vehicleId) => {
-        return get().getTotalFuelCost(vehicleId) + get().getTotalExpenses(vehicleId);
-      },
-    }),
-    { name: 'transitops-finance' }
-  )
+    getTotalExpenses: (vehicleId) => {
+      const exps = vehicleId
+        ? get().expenses.filter(e => e.vehicle_id === vehicleId)
+        : get().expenses;
+      return exps.reduce((sum, e) => sum + e.amount, 0);
+    },
+
+    getTotalOperationalCost: (vehicleId) => {
+      return get().getTotalFuelCost(vehicleId) + get().getTotalExpenses(vehicleId);
+    },
+  })
 );
+

@@ -44,7 +44,7 @@ export default function Maintenance() {
     search: searchQuery,
   });
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
 
@@ -53,7 +53,7 @@ export default function Maintenance() {
       return;
     }
 
-    const result = createLog({
+    const result = await createLog({
       vehicle_id: form.vehicle_id,
       type: form.type,
       description: form.description || undefined,
@@ -69,9 +69,9 @@ export default function Maintenance() {
     setShowForm(false);
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
     if (!closeTarget) return;
-    const result = closeLog(closeTarget.id);
+    const result = await closeLog(closeTarget.id);
     if ('error' in result) { setFormError(result.error); }
     setCloseTarget(null);
   };

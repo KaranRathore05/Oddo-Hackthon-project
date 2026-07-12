@@ -1,110 +1,98 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { Driver, DriverStatus } from '@/types';
-import { generateId, nowISO, isLicenseExpired } from '@/types';
+import { isLicenseExpired } from '@/types';
+import { driverService } from '@/services/driverService';
 
 interface DriverState {
   drivers: Driver[];
-  addDriver: (d: Omit<Driver, 'id' | 'created_at' | 'updated_at' | 'status' | 'safety_score'> & { safety_score?: number }) => Driver | { error: string };
-  updateDriver: (id: string, data: Partial<Driver>) => Driver | { error: string };
-  suspendDriver: (id: string) => Driver | { error: string };
-  reinstateDriver: (id: string) => Driver | { error: string };
-  setDriverStatus: (id: string, status: DriverStatus) => void;
+  isLoading: boolean;
+  error: string | null;
+  fetchDrivers: () => Promise<void>;
+  addDriver: (d: Omit<Driver, 'id' | 'created_at' | 'updated_at' | 'status' | 'safety_score'> & { safety_score?: number }) => Promise<Driver | { error: string }>;
+  updateDriver: (id: string, data: Partial<Driver>) => Promise<Driver | { error: string }>;
+  suspendDriver: (id: string) => Promise<Driver | { error: string }>;
+  reinstateDriver: (id: string) => Promise<Driver | { error: string }>;
   getDriver: (id: string) => Driver | undefined;
   getAvailableDrivers: () => Driver[];
   getFilteredDrivers: (filters: { status?: DriverStatus; search?: string; licenseCategory?: string }) => Driver[];
 }
 
 export const useDriverStore = create<DriverState>()(
-  persist(
-    (set, get) => ({
-      drivers: [],
+  (set, get) => ({
+    drivers: [],
+    isLoading: false,
+    error: null,
 
-      addDriver: (data) => {
-        const existing = get().drivers.find(d => d.license_number === data.license_number);
-        if (existing) {
-          return { error: `Driver with license number "${data.license_number}" already exists.` };
-        }
-        const now = nowISO();
-        const driver: Driver = {
-          id: generateId(),
-          name: data.name,
-          license_number: data.license_number,
-          license_category: data.license_category,
-          license_expiry_date: data.license_expiry_date,
-          contact_number: data.contact_number,
-          safety_score: data.safety_score ?? 100,
-          status: 'AVAILABLE',
-          created_at: now,
-          updated_at: now,
-        };
-        set((s) => ({ drivers: [...s.drivers, driver] }));
-        return driver;
-      },
+    fetchDrivers: async () => {
+      set({ isLoading: true, error: null });
+      try {
+        const drivers = await driverService.getDrivers();
+        set({ drivers, isLoading: false });
+      } catch (err: any) {
+        set({ error: err?.error?.message || 'Failed to fetch drivers', isLoading: false });
+      }
+    },
 
-      updateDriver: (id, data) => {
-        const drivers = get().drivers;
-        const idx = drivers.findIndex(d => d.id === id);
-        if (idx === -1) return { error: 'Driver not found.' };
-
-        if (data.license_number && data.license_number !== drivers[idx].license_number) {
-          const dup = drivers.find(d => d.license_number === data.license_number && d.id !== id);
-          if (dup) return { error: `License number "${data.license_number}" is already in use.` };
-        }
-
-        const updated = { ...drivers[idx], ...data, updated_at: nowISO() };
-        const next = [...drivers];
-        next[idx] = updated;
-        set({ drivers: next });
-        return updated;
-      },
-
-      suspendDriver: (id) => {
-        const d = get().drivers.find(d => d.id === id);
-        if (!d) return { error: 'Driver not found.' };
-        if (d.status === 'ON_TRIP') return { error: 'Cannot suspend a driver who is currently on a trip.' };
-        return get().updateDriver(id, { status: 'SUSPENDED' }) as Driver;
-      },
-
-      reinstateDriver: (id) => {
-        const d = get().drivers.find(d => d.id === id);
-        if (!d) return { error: 'Driver not found.' };
-        if (d.status !== 'SUSPENDED' && d.status !== 'OFF_DUTY') {
-          return { error: 'Driver is not suspended or off-duty.' };
-        }
-        return get().updateDriver(id, { status: 'AVAILABLE' }) as Driver;
-      },
-
-      setDriverStatus: (id, status) => {
-        set((s) => ({
-          drivers: s.drivers.map(d =>
-            d.id === id ? { ...d, status, updated_at: nowISO() } : d
-          ),
-        }));
-      },
-
-      getDriver: (id) => get().drivers.find(d => d.id === id),
-
-      getAvailableDrivers: () =>
-        get().drivers.filter(d =>
-          d.status === 'AVAILABLE' && !isLicenseExpired(d.license_expiry_date)
-        ),
-
-      getFilteredDrivers: ({ status, search, licenseCategory }) => {
-        let result = get().drivers;
-        if (status) result = result.filter(d => d.status === status);
-        if (licenseCategory) result = result.filter(d => d.license_category === licenseCategory);
-        if (search) {
-          const q = search.toLowerCase();
-          result = result.filter(d =>
-            d.name.toLowerCase().includes(q) ||
-            d.license_number.toLowerCase().includes(q) ||
-            d.contact_number.includes(q)
-          );
-        }
+    addDriver: async (data) => {
+      try {
+        const result = await driverService.createDriver(data);
+        set((s) => ({ drivers: [...s.drivers, result] }));
         return result;
-      },
-    }),
-    { name: 'transitops-drivers' }
-  )
+      } catch (err: any) {
+        return { error: err?.error?.message || 'Failed to add driver' };
+      }
+    },
+
+    updateDriver: async (id, data) => {
+      try {
+        const result = await driverService.updateDriver(id, data);
+        set((s) => ({ drivers: s.drivers.map(d => d.id === id ? result : d) }));
+        return result;
+      } catch (err: any) {
+        return { error: err?.error?.message || 'Failed to update driver' };
+      }
+    },
+
+    suspendDriver: async (id) => {
+      try {
+        const result = await driverService.suspendDriver(id);
+        set((s) => ({ drivers: s.drivers.map(d => d.id === id ? result : d) }));
+        return result;
+      } catch (err: any) {
+        return { error: err?.error?.message || 'Failed to suspend driver' };
+      }
+    },
+
+    reinstateDriver: async (id) => {
+      try {
+        const result = await driverService.reinstateDriver(id);
+        set((s) => ({ drivers: s.drivers.map(d => d.id === id ? result : d) }));
+        return result;
+      } catch (err: any) {
+        return { error: err?.error?.message || 'Failed to reinstate driver' };
+      }
+    },
+
+    getDriver: (id) => get().drivers.find(d => d.id === id),
+
+    getAvailableDrivers: () =>
+      get().drivers.filter(d =>
+        d.status === 'AVAILABLE' && !isLicenseExpired(d.license_expiry_date)
+      ),
+
+    getFilteredDrivers: ({ status, search, licenseCategory }) => {
+      let result = get().drivers;
+      if (status) result = result.filter(d => d.status === status);
+      if (licenseCategory) result = result.filter(d => d.license_category === licenseCategory);
+      if (search) {
+        const q = search.toLowerCase();
+        result = result.filter(d =>
+          d.name.toLowerCase().includes(q) ||
+          d.license_number.toLowerCase().includes(q) ||
+          d.contact_number.includes(q)
+        );
+      }
+      return result;
+    },
+  })
 );

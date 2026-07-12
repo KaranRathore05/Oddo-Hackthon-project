@@ -1,14 +1,9 @@
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: 'FLEET_MANAGER' | 'DRIVER' | 'SAFETY_OFFICER' | 'FINANCIAL_ANALYST';
-  avatar?: string;
-}
+import { apiClient } from './apiClient';
+import type { User } from '@/types';
 
 export interface LoginCredentials {
   email: string;
-  password: string;
+  password?: string;
 }
 
 export interface AuthResponse {
@@ -17,9 +12,8 @@ export interface AuthResponse {
 }
 
 export const authService = {
-  async login(_credentials: LoginCredentials): Promise<AuthResponse | null> {
-    // Returns null — triggers auth empty state until real API is connected
-    return Promise.resolve(null);
+  async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    return apiClient.post<AuthResponse>('/auth/login', credentials, { skipAuth: true });
   },
 
   async logout(): Promise<void> {
@@ -27,8 +21,8 @@ export const authService = {
     return Promise.resolve();
   },
 
-  async getCurrentUser(): Promise<User | null> {
-    // Returns null — no authenticated user until real API
-    return Promise.resolve(null);
+  async getCurrentUser(): Promise<User> {
+    const res = await apiClient.get<{ user: User }>('/auth/me');
+    return res.user;
   },
 };

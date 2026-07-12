@@ -41,32 +41,38 @@ export default function Finance() {
   const vehicleOptions = vehicles.map(v => ({ value: v.id, label: `${v.registration_number} — ${v.name_model}` }));
   const tripOptions = trips.map(t => ({ value: t.id, label: `${t.id.slice(0, 8).toUpperCase()} — ${t.source} → ${t.destination}` }));
 
-  const handleAddFuel = (e: React.FormEvent) => {
+  const handleAddFuel = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
     if (!fuelForm.vehicle_id || !fuelForm.liters || !fuelForm.cost || !fuelForm.date) {
       setFormError('Please fill all required fields.');
       return;
     }
-    addFuelLog({
+    const result = await addFuelLog({
       vehicle_id: fuelForm.vehicle_id,
       trip_id: fuelForm.trip_id || undefined,
       liters: Number(fuelForm.liters),
       cost: Number(fuelForm.cost),
       date: fuelForm.date,
     });
+    
+    if ('error' in result) {
+      setFormError(result.error);
+      return;
+    }
+
     setFuelForm({ vehicle_id: '', trip_id: '', liters: '', cost: '', date: '' });
     setShowFuelForm(false);
   };
 
-  const handleAddExpense = (e: React.FormEvent) => {
+  const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
     if (!expenseForm.amount || !expenseForm.date) {
       setFormError('Please fill amount and date.');
       return;
     }
-    addExpense({
+    const result = await addExpense({
       vehicle_id: expenseForm.vehicle_id || undefined,
       trip_id: expenseForm.trip_id || undefined,
       category: expenseForm.category,
@@ -74,6 +80,12 @@ export default function Finance() {
       date: expenseForm.date,
       notes: expenseForm.notes || undefined,
     });
+    
+    if ('error' in result) {
+      setFormError(result.error);
+      return;
+    }
+
     setExpenseForm({ vehicle_id: '', trip_id: '', category: 'TOLL', amount: '', date: '', notes: '' });
     setShowExpenseForm(false);
   };
