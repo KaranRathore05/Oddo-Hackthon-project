@@ -1,33 +1,29 @@
-export interface Vehicle {
-  id: string;
-  plateNumber: string;
-  model: string;
-  type: 'BUS' | 'TRUCK' | 'VAN' | 'CAR';
-  status: 'ACTIVE' | 'MAINTENANCE' | 'INACTIVE' | 'RETIRED';
-  fuelType: 'DIESEL' | 'PETROL' | 'ELECTRIC' | 'HYBRID';
-  mileage: number;
-  lastServiceDate: string;
-  assignedDriverId?: string;
-}
+import { apiClient } from './apiClient';
+import type { Vehicle } from '@/types';
 
 export const vehicleService = {
   async getVehicles(): Promise<Vehicle[]> {
-    return Promise.resolve([]);
+    return apiClient.get<Vehicle[]>('/vehicles');
   },
 
-  async getVehicleById(_id: string): Promise<Vehicle | null> {
-    return Promise.resolve(null);
+  async getVehicleById(id: string): Promise<Vehicle> {
+    return apiClient.get<Vehicle>(`/vehicles/${id}`);
   },
 
-  async createVehicle(_vehicle: Partial<Vehicle>): Promise<Vehicle | null> {
-    return Promise.resolve(null);
+  async createVehicle(vehicle: Partial<Vehicle>): Promise<Vehicle> {
+    return apiClient.post<Vehicle>('/vehicles', vehicle);
   },
 
-  async updateVehicle(_id: string, _vehicle: Partial<Vehicle>): Promise<Vehicle | null> {
-    return Promise.resolve(null);
+  async updateVehicle(id: string, vehicle: Partial<Vehicle>): Promise<Vehicle> {
+    return apiClient.put<Vehicle>(`/vehicles/${id}`, vehicle);
   },
 
-  async deleteVehicle(_id: string): Promise<boolean> {
-    return Promise.resolve(false);
+  async deleteVehicle(id: string): Promise<boolean> {
+    await apiClient.delete(`/vehicles/${id}`);
+    return true;
   },
+  
+  async retireVehicle(id: string): Promise<Vehicle> {
+    return apiClient.request<Vehicle>(`/vehicles/${id}/retire`, { method: 'PATCH' });
+  }
 };

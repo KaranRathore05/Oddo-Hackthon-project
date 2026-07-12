@@ -56,7 +56,7 @@ export default function Trips() {
 
   const filtered = useTripStore.getState().getFilteredTrips({ search: searchQuery });
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
 
@@ -65,7 +65,7 @@ export default function Trips() {
       return;
     }
 
-    const result = createTrip({
+    const result = await createTrip({
       source: form.source,
       destination: form.destination,
       vehicle_id: form.vehicle_id,
@@ -84,17 +84,17 @@ export default function Trips() {
     setShowCreate(false);
   };
 
-  const handleDispatch = () => {
+  const handleDispatch = async () => {
     if (!dispatchTarget) return;
-    const result = dispatchTrip(dispatchTarget.id);
+    const result = await dispatchTrip(dispatchTarget.id);
     if ('error' in result) { setFormError(result.error); }
     setDispatchTarget(null);
   };
 
-  const handleComplete = (e: React.FormEvent) => {
+  const handleComplete = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!completeTarget) return;
-    const result = completeTrip(completeTarget.id, {
+    const result = await completeTrip(completeTarget.id, {
       actual_distance_km: Number(completeForm.actual_distance_km),
       fuel_consumed_liters: Number(completeForm.fuel_consumed_liters),
     });
@@ -103,9 +103,9 @@ export default function Trips() {
     setCompleteForm({ actual_distance_km: '', fuel_consumed_liters: '' });
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (!cancelTarget) return;
-    const result = cancelTrip(cancelTarget.id);
+    const result = await cancelTrip(cancelTarget.id);
     if ('error' in result) { setFormError(result.error); }
     setCancelTarget(null);
   };

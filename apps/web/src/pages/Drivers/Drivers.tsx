@@ -71,7 +71,7 @@ export default function Drivers() {
     setShowForm(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
 
@@ -90,10 +90,10 @@ export default function Drivers() {
     };
 
     if (editingDriver) {
-      const result = updateDriver(editingDriver.id, data);
+      const result = await updateDriver(editingDriver.id, data);
       if ('error' in result) { setFormError(result.error); return; }
     } else {
-      const result = addDriver(data);
+      const result = await addDriver(data);
       if ('error' in result) { setFormError(result.error); return; }
     }
 
@@ -101,16 +101,16 @@ export default function Drivers() {
     setForm(initialForm);
   };
 
-  const handleSuspend = () => {
+  const handleSuspend = async () => {
     if (!suspendTarget) return;
-    const result = suspendDriver(suspendTarget.id);
+    const result = await suspendDriver(suspendTarget.id);
     if ('error' in result) { setFormError(result.error); }
     setSuspendTarget(null);
   };
 
-  const handleReinstate = () => {
+  const handleReinstate = async () => {
     if (!reinstateTarget) return;
-    const result = reinstateDriver(reinstateTarget.id);
+    const result = await reinstateDriver(reinstateTarget.id);
     if ('error' in result) { setFormError(result.error); }
     setReinstateTarget(null);
   };
