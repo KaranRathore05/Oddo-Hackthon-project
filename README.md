@@ -44,8 +44,7 @@ Logistics and transport companies running operations on spreadsheets and paper l
 ## 🚀 What We Built (Key Modules)
 
 ### 1. Unified Monorepo Suite
-
-- **Web App (Frontend)**: React 18 dashboard styling featuring a dark-themed glassmorphism interface, interactive charts (Recharts), customizable layouts, and responsive components.
+- **Web App (Frontend)**: React 18 dashboard styling featuring a dark-themed glassmorphism interface, interactive charts (Recharts), customizable layouts, and responsive components. Fully integrated with live REST APIs.
 - **API Service (Backend)**: Express + TypeScript server implementing token authentication, role-based guard middlewares, Zod schema validation, and transactional Prisma queries.
 
 ### 2. Module Breakdown
@@ -69,8 +68,8 @@ Logistics and transport companies running operations on spreadsheets and paper l
 | **Framework / Runtime** | **React 18 + Vite** | **Node.js + Express (TypeScript)** |
 | **Language** | TypeScript (v5.5) | TypeScript (v5.5) |
 | **Database ORM** | — | **Prisma ORM** |
-| **Database Engine** | Local Storage (Mock fallback) | **SQLite** (`dev.db` for local velocity) |
-| **State / Auth** | Zustand + Persist Middleware | **JWT (jsonwebtoken)** + **Bcrypt.js** |
+| **Database Engine** | API Client (Fetch) | **SQLite** (`dev.db` for local velocity) |
+| **State / Auth** | Zustand (Global State) | **JWT (jsonwebtoken)** + **Bcrypt.js** |
 | **Validation** | Form boundaries | **Zod Schemas** |
 | **Styling** | TailwindCSS + Framer Motion | Custom error formatting middleware |
 | **Data Viz** | Recharts | Group By & Aggregate SQL Queries |
@@ -81,12 +80,12 @@ Logistics and transport companies running operations on spreadsheets and paper l
 
 TransitOps uses a modern three-tier pipeline designed for high performance and integrity.
 
-```
+```text
        +---------------------------------------------+
        |             TransitOps React UI             |
        |  (Glassmorphism Cards, Modals, Forms, Lists)|
        +---------------------------------------------+
-                              │  (Axios / Fetch)
+                              │  (REST API via Fetch)
                               ▼
        +---------------------------------------------+
        |             Express Router & Zod            |
@@ -110,14 +109,14 @@ TransitOps uses a modern three-tier pipeline designed for high performance and i
 
 1. **User Request**: The user triggers an action (e.g., clicking *Complete Trip*).
 2. **Auth & RBAC Middleware**: The API validates the client JWT bearer token, checks the user's role, and ensures permission to proceed.
-3. **Zod Validator**: Request payloads are structurally validated (e.g., verifying `actual_distance_km` is positive).
+3. **Zod Validator**: Request payloads are structurally validated (e.g., verifying `actual_distance_km` is positive and IDs are correctly formatted).
 4. **Transaction Core**: The controller runs a Prisma `$transaction` block. This guarantees that multiple tables update atomically (e.g., updating the trip state to `COMPLETED`, returning the vehicle and driver to `AVAILABLE`, and appending the distance to the vehicle's odometer). If one action fails, the database rolls back completely to prevent data corruption.
 
 ---
 
 ## 🗄️ Database Schema Design (Prisma)
 
-The backend data store uses a relational schema defined in [schema.prisma](file:///d:/hack/Oddo-Hackthon-project/apps/api/prisma/schema.prisma):
+The backend data store uses a relational schema defined via Prisma ORM:
 
 ```mermaid
 erDiagram
@@ -290,7 +289,7 @@ Run the dev commands in separate terminals:
 cd apps/api
 npm run dev
 
-# Start frontend Web Dashboard (runs on http://localhost:3001 or 3000)
+# Start frontend Web Dashboard (runs on http://localhost:3000 or 3001)
 cd apps/web
 npm run dev
 ```
@@ -300,7 +299,7 @@ npm run dev
 ## 📂 Project Structure
 
 ```text
-Oddo-Hackthon-project/
+TransitOps/
 ├── apps/
 │   ├── api/                   # TypeScript Node.js Backend API
 │   │   ├── prisma/
@@ -324,6 +323,7 @@ Oddo-Hackthon-project/
 │       ├── src/
 │       │   ├── components/    # Layout modules (Sidebar, Topbar) & UI elements
 │       │   ├── pages/         # 9 Dashboard modules
+│       │   ├── services/      # REST API client & service adapters
 │       │   ├── store/         # State management stores (Zustand)
 │       │   ├── types.ts       # Central data structures
 │       │   ├── App.tsx        # Routing engine
@@ -340,10 +340,10 @@ To see the pipeline working from end-to-end, use this flow:
 
 1. **Sign In**: Navigate to [http://localhost:3001/](http://localhost:3001/). Choose **Fleet Manager** or **Driver** and log in with the password `demo123`.
 2. **Generate a Draft Trip**: Select a vehicle (e.g. `VAN-05`) and a driver (e.g. `Alex`). Enter a cargo weight that is within limits. Save the trip to create a `DRAFT`.
-3. **Validate Load Rules**: Try creating a trip with cargo weight `700 kg` for `VAN-05` (500 kg limit). The system will alert you and prevent dispatch.
-4. **Dispatch the Trip**: Under the *Live Board*, click the **Dispatch** button on your Draft Trip. The trip status shifts to `DISPATCHED`. If you check the *Vehicles* and *Drivers* pages, both entities are now automatically flagged as `ON_TRIP`.
+3. **Validate Load Rules**: Try creating a trip with cargo weight `700 kg` for `VAN-05` (500 kg limit). The backend API will block the request and alert you.
+4. **Dispatch the Trip**: Under the *Live Board*, click the **Dispatch** button on your Draft Trip. The trip status shifts to `DISPATCHED`. If you check the *Vehicles* and *Drivers* pages, both entities are now automatically flagged as `ON_TRIP` on the backend.
 5. **Log Fuel**: Go to the *Finance* panel, click *Log Fuel*, select the active vehicle, and enter liters and cost. The operational cost dashboard aggregates this automatically.
-6. **Complete the Trip**: Return to the trips panel, click **Complete**, and input an actual distance (e.g. `120 km`). The trip shifts to `COMPLETED`, the vehicle and driver return to `AVAILABLE` status, and the vehicle's odometer updates to reflect the new mileage.
+6. **Complete the Trip**: Return to the trips panel, click **Complete**, and input an actual distance (e.g. `120 km`). The trip shifts to `COMPLETED`, the vehicle and driver return to `AVAILABLE` status, and the vehicle's odometer updates to reflect the new mileage on the backend!
 
 ---
 
