@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 // Reusable animated section wrapper
 function StorySection({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <section className={`min-h-screen flex items-center justify-center relative z-10 py-24 ${className}`}>
+    <section className={`min-h-screen flex items-center justify-center relative z-10 py-24 snap-start ${className}`}>
       <motion.div
         initial={{ opacity: 0, y: 100 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -116,40 +116,65 @@ function SectionOperations() {
   );
 }
 
-// Section 3: Driver Management
-function SectionDrivers() {
+// Section 3: Feature Bento Grid
+function SectionFeatures() {
   return (
-    <StorySection className="text-right">
-      <div className="max-w-2xl ml-auto flex flex-col items-end">
-        <div className="w-12 h-12 rounded-xl bg-emerald/10 flex items-center justify-center mb-6 border border-emerald/20">
-          <Shield className="w-6 h-6 text-emerald" />
+    <StorySection className="items-start py-32">
+      <div className="w-full">
+        <div className="text-center mb-16">
+          <h2 className="text-5xl font-bold text-white mb-6">Complete Ecosystem</h2>
+          <p className="text-xl text-muted max-w-2xl mx-auto">
+            Everything you need to run a world-class fleet, packed into a single, unified platform.
+          </p>
         </div>
-        <h2 className="text-4xl font-bold text-white mb-6">Intelligent Driver Safety</h2>
-        <p className="text-lg text-muted mb-12">
-          Monitor driving behavior, track compliance, and reward your best performers.
-          Safety scores grow dynamically as drivers complete flawless trips.
-        </p>
-        
-        {/* Animated License/Profile Card */}
-        <motion.div 
-          whileHover={{ scale: 1.05, rotateY: 10 }}
-          className="w-full max-w-sm rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 p-6 backdrop-blur-md shadow-glass text-left relative overflow-hidden group cursor-pointer"
-        >
-          <div className="absolute inset-0 bg-emerald/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-full bg-charcoal border border-white/10 overflow-hidden relative flex items-center justify-center">
-              <Shield className="w-8 h-8 text-white/50" />
-              <div className="absolute inset-0 shadow-inner-glow" />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto auto-rows-[280px]">
+          {/* Tracking - Span 2 cols */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            className="md:col-span-2 glass-card p-6 flex flex-col relative group overflow-hidden"
+          >
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+            <div className="relative z-10">
+              <div className="w-10 h-10 rounded-xl bg-cyan/10 flex items-center justify-center mb-4 border border-cyan/20">
+                <Map className="w-5 h-5 text-cyan" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">Precision Tracking</h3>
+              <p className="text-muted text-sm max-w-sm">Watch your fleet move across the globe with millisecond latency.</p>
             </div>
-            <div>
-              <h4 className="text-white font-medium text-lg">Driver Profile</h4>
-              <p className="text-emerald text-sm font-mono tracking-widest">ID: ****</p>
+            
+            {/* Animated tracking nodes */}
+            <div className="absolute right-0 bottom-0 w-1/2 h-full pointer-events-none">
+              {[...Array(3)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  animate={{
+                    x: [(Math.random() - 0.5) * 200, (Math.random() - 0.5) * 200],
+                    y: [(Math.random() - 0.5) * 150, (Math.random() - 0.5) * 150],
+                  }}
+                  transition={{ duration: 5 + Math.random() * 5, repeat: Infinity, repeatType: 'mirror', ease: 'linear' }}
+                  className="absolute top-1/2 left-1/2 flex items-center justify-center w-8 h-8"
+                >
+                  <div className="absolute w-full h-full rounded-full bg-cyan/20 animate-ping" />
+                  <div className="w-2 h-2 rounded-full bg-cyan shadow-glow-cyan" />
+                </motion.div>
+              ))}
             </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-2">
+          </motion.div>
+
+          {/* Drivers */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            className="glass-card p-6 flex flex-col group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-emerald/10 flex items-center justify-center mb-4 border border-emerald/20">
+              <Shield className="w-5 h-5 text-emerald" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Driver Safety</h3>
+            <p className="text-muted text-sm mb-6">Monitor behavior and track compliance dynamically.</p>
+            
+            <div className="mt-auto">
+              <div className="flex justify-between text-xs mb-2">
                 <span className="text-muted">Safety Score</span>
                 <span className="text-emerald font-mono">98/100</span>
               </div>
@@ -157,164 +182,84 @@ function SectionDrivers() {
                 <motion.div 
                   initial={{ width: 0 }}
                   whileInView={{ width: '98%' }}
-                  transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
+                  transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
                   className="h-full bg-emerald shadow-glow-emerald"
                 />
               </div>
             </div>
-          </div>
-        </motion.div>
-      </div>
-    </StorySection>
-  );
-}
+          </motion.div>
 
-// Section 4: Fleet Tracking
-function SectionTracking() {
-  return (
-    <StorySection>
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <h2 className="text-5xl font-bold text-white mb-6">Precision Logistics</h2>
-        <p className="text-xl text-muted">
-          Watch your fleet move across the globe with millisecond latency. 
-          Every delivery, every route, perfectly mapped.
-        </p>
-      </div>
-      
-      {/* Map visualization abstraction */}
-      <div className="relative w-full h-96 rounded-3xl bg-charcoal border border-white/5 overflow-hidden shadow-glass flex items-center justify-center">
-        {/* Background grid */}
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-        
-        <Map className="w-32 h-32 text-white/5 absolute" />
-        
-        {/* Animated tracking nodes */}
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            animate={{
-              x: [(Math.random() - 0.5) * 600, (Math.random() - 0.5) * 600],
-              y: [(Math.random() - 0.5) * 300, (Math.random() - 0.5) * 300],
-            }}
-            transition={{ duration: 10 + Math.random() * 10, repeat: Infinity, repeatType: 'mirror', ease: 'linear' }}
-            className="absolute flex items-center justify-center w-8 h-8"
+          {/* Fuel */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            className="glass-card p-6 flex flex-col relative overflow-hidden group"
           >
-            <div className="absolute w-full h-full rounded-full bg-cyan/20 animate-ping" />
-            <div className="w-3 h-3 rounded-full bg-cyan shadow-glow-cyan" />
-            <div className="absolute top-10 whitespace-nowrap px-2 py-1 bg-white/10 backdrop-blur-md rounded border border-white/10 text-xs font-mono text-cyan">
-              TRK-{10 + i}
+            <div className="w-10 h-10 rounded-xl bg-crimson/10 flex items-center justify-center mb-4 border border-crimson/20">
+              <Fuel className="w-5 h-5 text-crimson" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Fuel Efficiency</h3>
+            <p className="text-muted text-sm relative z-10">Identify inefficient routes that drain your bottom line.</p>
+            
+            <div className="absolute bottom-0 left-0 right-0 h-32 flex items-end justify-center gap-1 px-4 opacity-30 group-hover:opacity-80 transition-opacity">
+              {[40, 60, 45, 80, 50, 90, 70, 30].map((height, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ height: 0 }}
+                  whileInView={{ height: `${height}%` }}
+                  transition={{ duration: 1, delay: i * 0.1, ease: "easeOut" }}
+                  className="flex-1 bg-gradient-to-t from-crimson/20 to-crimson border-t border-white/20 rounded-t-sm"
+                />
+              ))}
             </div>
           </motion.div>
-        ))}
-      </div>
-    </StorySection>
-  );
-}
 
-// Section 5: Maintenance
-function SectionMaintenance() {
-  return (
-    <StorySection>
-      <div className="grid lg:grid-cols-2 gap-16 items-center">
-        <div className="order-2 lg:order-1 relative aspect-square">
-          {/* Abstract Truck wireframe rotation */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div 
-              animate={{ rotateY: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="relative w-64 h-64 preserve-3d"
-            >
-              <div className="absolute inset-0 border-2 border-amber/30 rounded-xl flex items-center justify-center bg-amber/5 backdrop-blur-sm" style={{ transform: 'translateZ(50px)' }}>
-                <Truck className="w-32 h-32 text-amber/50" />
-              </div>
-              <div className="absolute inset-0 border border-amber/10 rounded-xl" style={{ transform: 'translateZ(-50px)' }} />
-            </motion.div>
-          </div>
-        </div>
-        <div className="order-1 lg:order-2">
-          <div className="w-12 h-12 rounded-xl bg-amber/10 flex items-center justify-center mb-6 border border-amber/20">
-            <Activity className="w-6 h-6 text-amber" />
-          </div>
-          <h2 className="text-4xl font-bold text-white mb-6">Predictive Maintenance</h2>
-          <p className="text-lg text-muted mb-8">
-            Identify mechanical faults before they become catastrophic failures. 
-            Keep your assets on the road, not in the shop.
-          </p>
-          <div className="space-y-3">
-            {[
-              { part: 'Engine Diagnostics', status: 'Optimal', color: 'text-emerald' },
-              { part: 'Brake Pads', status: 'Service Soon', color: 'text-amber' },
-              { part: 'Transmission', status: 'Normal', color: 'text-cyan' }
-            ].map((item, i) => (
-              <div key={i} className="flex justify-between items-center p-4 rounded-xl border border-white/5 bg-white/[0.02]">
-                <span className="text-white/80">{item.part}</span>
-                <span className={`text-sm font-mono ${item.color}`}>{item.status}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </StorySection>
-  );
-}
-
-// Section 6: Fuel Management
-function SectionFuel() {
-  return (
-    <StorySection>
-      <div className="max-w-4xl mx-auto text-center">
-        <div className="w-16 h-16 rounded-2xl bg-crimson/10 flex items-center justify-center mx-auto mb-8 border border-crimson/20">
-          <Fuel className="w-8 h-8 text-crimson" />
-        </div>
-        <h2 className="text-5xl font-bold text-white mb-6">Eliminate Fuel Waste</h2>
-        <p className="text-xl text-muted mb-16">
-          Track every drop. Identify inefficient routes and driving patterns that drain your bottom line.
-        </p>
-        
-        {/* Animated Fuel Graph */}
-        <div className="h-64 flex items-end justify-center gap-2 px-8">
-          {[40, 60, 45, 80, 50, 90, 70, 30, 85, 55].map((height, i) => (
-            <div key={i} className="flex-1 bg-charcoal rounded-t-xl overflow-hidden relative">
-              <motion.div
-                initial={{ height: 0 }}
-                whileInView={{ height: `${height}%` }}
-                transition={{ duration: 1, delay: i * 0.1, ease: "easeOut" }}
-                className="absolute bottom-0 w-full bg-gradient-to-t from-crimson/20 to-crimson border-t border-white/50"
-              />
+          {/* Maintenance */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            className="glass-card p-6 flex flex-col group relative overflow-hidden"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber/10 flex items-center justify-center mb-4 border border-amber/20 relative z-10">
+              <Activity className="w-5 h-5 text-amber" />
             </div>
-          ))}
-        </div>
-      </div>
-    </StorySection>
-  );
-}
+            <h3 className="text-xl font-bold text-white mb-2 relative z-10">Predictive Maintenance</h3>
+            <p className="text-muted text-sm relative z-10">Keep your assets on the road, not in the shop.</p>
+            
+            <div className="absolute -right-4 -bottom-4 opacity-30 group-hover:opacity-60 transition-opacity">
+              <motion.div 
+                animate={{ rotateY: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="w-32 h-32 preserve-3d"
+              >
+                <div className="absolute inset-0 flex items-center justify-center text-amber">
+                  <Truck className="w-16 h-16" />
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
 
-// Section 7: Reports
-function SectionReports() {
-  return (
-    <StorySection>
-      <div className="flex flex-col md:flex-row gap-16 items-center justify-between">
-        <div className="max-w-md">
-          <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-6 border border-white/20">
-            <FileBarChart className="w-6 h-6 text-white" />
-          </div>
-          <h2 className="text-4xl font-bold text-white mb-6">Financial Intelligence</h2>
-          <p className="text-lg text-muted">
-            Generate pixel-perfect PDF reports. Analyze revenue per mile, maintenance costs, and total fleet ROI in seconds.
-          </p>
-        </div>
-        
-        {/* Animated Analytics Chart */}
-        <div className="p-8 rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-glass w-full max-w-sm flex items-end justify-between h-40 gap-2">
-          {[40, 70, 45, 90, 60, 100].map((height, i) => (
-            <motion.div
-              key={i}
-              initial={{ height: 0 }}
-              whileInView={{ height: `${height}%` }}
-              transition={{ duration: 1, delay: i * 0.1, ease: "easeOut" }}
-              className="w-full bg-emerald/20 border-t border-emerald/50 rounded-t-sm"
-            />
-          ))}
+          {/* Reports */}
+          <motion.div 
+            whileHover={{ y: -4 }}
+            className="glass-card p-6 flex flex-col group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center mb-4 border border-white/20">
+              <FileBarChart className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Financial Intelligence</h3>
+            <p className="text-muted text-sm mb-6">Analyze revenue, costs, and ROI in seconds.</p>
+            
+            <div className="mt-auto h-20 flex items-end justify-between gap-1">
+              {[40, 70, 45, 90, 60].map((height, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ height: 0 }}
+                  whileInView={{ height: `${height}%` }}
+                  transition={{ duration: 1, delay: i * 0.1, ease: "easeOut" }}
+                  className="w-full bg-emerald/20 border-t border-emerald/50 rounded-t-sm"
+                />
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
     </StorySection>
@@ -350,11 +295,7 @@ export function StorySections() {
     <div className="relative w-full">
       <SectionProblem />
       <SectionOperations />
-      <SectionDrivers />
-      <SectionTracking />
-      <SectionMaintenance />
-      <SectionFuel />
-      <SectionReports />
+      <SectionFeatures />
       <SectionCTA />
     </div>
   );

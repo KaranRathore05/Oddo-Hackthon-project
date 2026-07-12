@@ -43,7 +43,16 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Landing() {
-  useSmoothScroll();
+  useEffect(() => {
+    // Enable native CSS scroll snapping on the html element for this page
+    document.documentElement.classList.add('snap-y', 'snap-mandatory');
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
+    return () => {
+      document.documentElement.classList.remove('snap-y', 'snap-mandatory');
+      document.documentElement.style.scrollBehavior = 'auto';
+    };
+  }, []);
 
   return (
     <div className="bg-charcoal text-white selection:bg-cyan/30">
@@ -51,32 +60,34 @@ export default function Landing() {
       <Hero3DScene />
 
       {/* Navigation Layer */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5 max-w-7xl mx-auto mix-blend-difference">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-white">
-            <Zap className="w-5 h-5 text-charcoal" strokeWidth={2.5} />
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050508]/80 backdrop-blur-2xl border-b border-white/5">
+        <div className="flex items-center justify-between px-8 py-5 max-w-7xl mx-auto w-full">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-cyan to-emerald">
+              <Zap className="w-5 h-5 text-charcoal" strokeWidth={2.5} />
+            </div>
+            <span className="text-xl font-bold text-white tracking-tight">
+              TransitOps
+            </span>
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">
-            TransitOps
-          </span>
-        </div>
-        <div className="flex items-center gap-6">
-          <Link
-            to="/login"
-            className="text-sm font-medium text-white/70 hover:text-white transition-colors duration-200"
-          >
-            Sign In
-          </Link>
-          <Link to="/login">
-            <Button size="sm" className="bg-white text-charcoal hover:bg-white/90">
-              Get Started <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link
+              to="/login"
+              className="text-sm font-medium text-white/70 hover:text-white transition-colors duration-500 ease-out"
+            >
+              Sign In
+            </Link>
+            <Link to="/login">
+              <Button size="sm" className="bg-white text-charcoal hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+                Get Started <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </nav>
 
       {/* Initial Hero Text (disappears on scroll) */}
-      <section className="relative z-10 h-screen flex flex-col items-center justify-center pointer-events-none">
+      <section className="relative z-10 h-screen flex flex-col items-center justify-center pointer-events-none snap-start">
         <div className="text-center mt-20">
           <h1 className="text-display md:text-[8rem] font-bold tracking-tighter leading-[0.9]">
             OPERATE <br />
@@ -93,7 +104,7 @@ export default function Landing() {
       <StorySections />
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/5 py-8 px-8 bg-charcoal">
+      <footer className="relative z-10 border-t border-white/5 py-8 px-8 bg-charcoal snap-start">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-muted font-mono">
           <span>© 2026 TransitOps. System Online.</span>
           <span>End of transmission.</span>
