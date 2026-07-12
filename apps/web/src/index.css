@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ============================================
-   TRANSITOPS — LUXURY DESIGN SYSTEM
+   TRANSITOPS — LUXURY ENTERPRISE DESIGN SYSTEM
    ============================================ */
 
 @layer base {
@@ -12,18 +12,15 @@
   }
 
   html {
-    scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Removed scroll-behavior: smooth; since we use Lenis now */
   }
 
   body {
+    /* Graphite / Carbon / Charcoal base */
     @apply bg-charcoal text-white font-sans;
-    background-image:
-      radial-gradient(at 40% 20%, rgba(0, 212, 255, 0.03) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(0, 200, 150, 0.02) 0px, transparent 50%),
-      radial-gradient(at 0% 80%, rgba(255, 184, 0, 0.02) 0px, transparent 50%);
-    background-attachment: fixed;
+    background-color: #050508; 
   }
 
   ::selection {
@@ -51,42 +48,36 @@
 
   /* Focus ring */
   :focus-visible {
-    @apply outline-none ring-2 ring-cyan/50 ring-offset-2 ring-offset-charcoal;
+    @apply outline-none ring-2 ring-cyan/50 ring-offset-2 ring-offset-[#050508];
   }
 }
 
 @layer components {
 
-  /* Glass Card */
+  /* Glass Card - Luxury Refinement */
   .glass-card {
     @apply relative overflow-hidden rounded-2xl;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.37),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
-  }
-
-  .glass-card-strong {
-    @apply glass-card;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+      0 30px 60px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
   }
 
   .glass-card-hover {
-    @apply glass-card transition-all duration-300;
+    @apply glass-card transition-all duration-500;
   }
 
   .glass-card-hover:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(0, 212, 255, 0.15);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border-color: rgba(255, 255, 255, 0.1);
     box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.37),
-      0 0 20px rgba(0, 212, 255, 0.05),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
-    transform: translateY(-1px);
+      0 30px 60px rgba(0, 0, 0, 0.5),
+      0 0 40px rgba(255, 255, 255, 0.02),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
   }
 
   /* Bento Grid */
@@ -137,7 +128,7 @@
     @apply status-pill bg-white/5 text-muted border border-white/10;
   }
 
-  /* Pulse dot for status indicators */
+  /* Pulse dot */
   .pulse-dot {
     @apply relative inline-flex h-2 w-2 rounded-full;
   }
@@ -166,16 +157,10 @@
     animation: shimmer 2s linear infinite;
   }
 
-  /* Noise texture overlay */
-  .noise-texture {
-    @apply pointer-events-none fixed inset-0 z-50 opacity-[0.015];
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  }
-
-  /* Text gradient */
+  /* Text gradient (Refined, no AI purple/cyan) */
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #00D4FF 0%, #00C896 50%, #FFB800 100%);
+    background-image: linear-gradient(180deg, #FFFFFF 0%, rgba(255,255,255,0.4) 100%);
   }
 
   .text-gradient-cyan {
@@ -183,24 +168,11 @@
     background-image: linear-gradient(135deg, #00D4FF 0%, #00A3CC 100%);
   }
 
-  /* Mesh gradient background */
-  .mesh-gradient-bg {
+  /* Subtle mesh gradient for specific components (monochrome/carbon) */
+  .bg-mesh-gradient {
     background-image:
-      radial-gradient(at 40% 20%, rgba(0, 212, 255, 0.08) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(0, 200, 150, 0.06) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, rgba(255, 184, 0, 0.04) 0px, transparent 50%),
-      radial-gradient(at 80% 80%, rgba(255, 51, 102, 0.04) 0px, transparent 50%);
-  }
-
-  /* Animated border gradient */
-  .border-gradient {
-    @apply relative rounded-2xl;
-    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 200, 150, 0.1));
-    padding: 1px;
-  }
-
-  .border-gradient>* {
-    @apply rounded-2xl bg-charcoal;
+      radial-gradient(at 40% 20%, rgba(255, 255, 255, 0.03) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgba(255, 255, 255, 0.01) 0px, transparent 50%);
   }
 }
 
@@ -211,9 +183,6 @@
 
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
-  }
-
-  .text-balance {
   }
 
   .perspective-1000 {
@@ -229,15 +198,10 @@
   }
 }
 
-/* ============================================
-   RESPONSIVE BENTO GRID
-   ============================================ */
-
 @media (max-width: 1024px) {
   .bento-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-
   .bento-grid .span-3 {
     grid-column: span 2;
   }
@@ -247,7 +211,6 @@
   .bento-grid {
     grid-template-columns: 1fr;
   }
-
   .bento-grid .span-2,
   .bento-grid .span-3,
   .bento-grid .span-full {
