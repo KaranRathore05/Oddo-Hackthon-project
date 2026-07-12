@@ -128,10 +128,23 @@ export default function Trips() {
         </Button>
       </div>
 
+      {/* Global Error Display */}
+      {formError && (
+        <div className="p-3 rounded-xl bg-crimson/10 border border-crimson/20 text-crimson text-sm flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" />
+            <span>{formError}</span>
+          </div>
+          <button type="button" onClick={() => setFormError('')} className="text-crimson/70 hover:text-crimson transition-colors">
+            <XCircle className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Trip Lifecycle Stepper */}
       <Card className="p-4">
-        <p className="text-xs text-muted uppercase tracking-wider font-semibold mb-4">Trip Lifecycle</p>
-        <Stepper steps={TRIP_STEPS} currentStep="DRAFT" className="max-w-md" />
+        <p className="text-xs text-muted uppercase tracking-wider font-semibold mb-4">Latest Trip Lifecycle</p>
+        <Stepper steps={TRIP_STEPS} currentStep={filtered[0]?.status || 'DRAFT'} className="max-w-md" />
       </Card>
 
       {/* Split Layout: Search + Live Board */}
