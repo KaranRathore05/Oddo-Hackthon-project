@@ -68,9 +68,6 @@ export default function Login() {
           className="relative z-10 max-w-md px-12"
         >
           <div className="flex items-center gap-3 mb-10">
-            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan to-emerald">
-              <Zap className="w-6 h-6 text-charcoal" strokeWidth={2.5} />
-            </div>
             <span className="text-2xl font-bold text-white">
               Transit<span className="text-cyan">Ops</span>
             </span>
@@ -119,9 +116,6 @@ export default function Login() {
         >
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10 justify-center">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-cyan to-emerald">
-              <Zap className="w-5 h-5 text-charcoal" strokeWidth={2.5} />
-            </div>
             <span className="text-xl font-bold text-white">
               Transit<span className="text-cyan">Ops</span>
             </span>

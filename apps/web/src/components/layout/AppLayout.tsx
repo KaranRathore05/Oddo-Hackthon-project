@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, Suspense, lazy } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,8 @@ import { useDriverStore } from '@/store/driverStore';
 import { useTripStore } from '@/store/tripStore';
 import { useMaintenanceStore } from '@/store/maintenanceStore';
 import { useFinanceStore } from '@/store/financeStore';
+
+const Assistant = lazy(() => import('../ui/Assistant/Assistant'));
 
 export function AppLayout() {
   const { sidebarCollapsed } = useThemeStore();
@@ -56,9 +58,13 @@ export function AppLayout() {
           </AnimatePresence>
         </main>
       </motion.div>
-
       {/* Command Palette */}
       <CommandPalette />
+
+      {/* AI Assistant - Lazy Loaded for authenticated users */}
+      <Suspense fallback={null}>
+        <Assistant />
+      </Suspense>
     </div>
   );
 }

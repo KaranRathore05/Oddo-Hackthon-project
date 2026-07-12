@@ -53,7 +53,7 @@ function HighwayGrid() {
 // Glowing GPS nodes / Vehicles
 function MovingVehicles() {
   const pointsRef = useRef<THREE.Points>(null);
-  const count = 300;
+  const count = 100;
 
   const [positions, speeds, colors] = useMemo(() => {
     const pos = new Float32Array(count * 3);
@@ -107,7 +107,7 @@ function MovingVehicles() {
 // Dust particles for volumetric feel
 function AmbientDust() {
   const pointsRef = useRef<THREE.Points>(null);
-  const count = 1000;
+  const count = 200;
   
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
@@ -187,7 +187,7 @@ function CameraRig() {
 export function Hero3DScene() {
   return (
     <div className="fixed inset-0 z-0 pointer-events-none bg-charcoal">
-      <Canvas camera={{ position: [0, 2, 10], fov: 60 }}>
+      <Canvas camera={{ position: [0, 2, 10], fov: 60 }} dpr={[1, 1.5]}>
         <fog attach="fog" args={['#0A0A0F', 10, 60]} />
         <ambientLight intensity={0.2} />
         

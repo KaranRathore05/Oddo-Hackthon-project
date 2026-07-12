@@ -58,6 +58,7 @@ Logistics and transport companies running operations on spreadsheets and paper l
 - **Expense & Fuel Ledgers (`/finance`)**: Records individual fuel logs (liters + cost) and general logistics costs (tolls, maintenance, other) to build a unified operational cost sheet.
 - **Fleet Analytics & PDF/CSV Export (`/reports`)**: Aggregates top-cost vehicles, calculates ROI, charts monthly expenditures, and compiles a one-click CSV report generator.
 - **Settings (`/settings`)**: General operations configurations showing depot names, currency formatting (`₹`, `$`), and a visual Role-to-Module access matrix.
+- **AI Assistant**: A high-performance, context-aware AI chatbot integrated directly into the dashboard. It uses Google Gemini to answer fleet management questions instantly, equipped with a 30fps streaming throttle for zero UI lag.
 
 ---
 

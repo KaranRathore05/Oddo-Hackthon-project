@@ -13,6 +13,7 @@ import financeRoutes from './fuel-expense/routes.js';
 import dashboardRoutes from './dashboard/routes.js';
 import documentRoutes from './documents/routes.js';
 import searchRoutes from './search/routes.js';
+import aiRoutes from './ai/routes.js';
 import { startCronJobs } from './cron/reminders.js';
 import path from 'path';
 
@@ -44,6 +45,7 @@ app.use('/api/finance', financeRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api', documentRoutes);
 app.use('/api', searchRoutes);
+app.use('/api/ai', aiRoutes);
 
 // ─── Error handler (must be last) ───────────────────────────
 app.use(errorHandler);

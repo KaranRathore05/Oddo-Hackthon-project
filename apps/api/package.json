@@ -13,6 +13,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@google/genai": "^2.11.0",
     "@prisma/client": "^5.17.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

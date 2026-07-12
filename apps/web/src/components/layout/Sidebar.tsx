@@ -37,9 +37,6 @@ export function Sidebar() {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-5 h-16 border-b border-white/[0.06]">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-cyan to-emerald shrink-0">
-            <Zap className="w-4 h-4 text-charcoal" strokeWidth={2.5} />
-          </div>
           <AnimatePresence>
             {!sidebarCollapsed && (
               <motion.span
