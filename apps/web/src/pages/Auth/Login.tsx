@@ -1,14 +1,23 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Zap, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Zap, ArrowRight, Shield, Truck, Users, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { useAuthStore } from '@/store/authStore';
+import { useAuthStore, DEMO_USERS } from '@/store/authStore';
+import type { UserRole } from '@/types';
+
+const ROLE_OPTIONS: { role: UserRole; label: string; icon: React.ReactNode; desc: string }[] = [
+  { role: 'FLEET_MANAGER', label: 'Fleet Manager', icon: <Truck className="w-4 h-4" />, desc: 'Full access to vehicles, maintenance & reports' },
+  { role: 'DRIVER', label: 'Dispatcher', icon: <Users className="w-4 h-4" />, desc: 'Create trips, assign vehicles & drivers' },
+  { role: 'SAFETY_OFFICER', label: 'Safety Officer', icon: <Shield className="w-4 h-4" />, desc: 'Driver compliance & safety management' },
+  { role: 'FINANCIAL_ANALYST', label: 'Financial Analyst', icon: <BarChart3 className="w-4 h-4" />, desc: 'Expenses, fuel logs & financial reports' },
+];
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('FLEET_MANAGER');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -19,20 +28,16 @@ export default function Login() {
     setIsLoading(true);
     setError('');
 
-    // Simulate auth — in production this calls authService.login()
+    // Demo login — use selected role
     setTimeout(() => {
+      const user = DEMO_USERS[selectedRole];
       login(
-        {
-          id: '1',
-          email: email || 'admin@transitops.io',
-          name: 'Admin User',
-          role: 'FLEET_MANAGER',
-        },
-        'demo-jwt-token'
+        { ...user, email: email || user.email },
+        `demo-jwt-token-${selectedRole}`
       );
       setIsLoading(false);
       navigate('/dashboard');
-    }, 1200);
+    }, 800);
   };
 
   return (
@@ -113,7 +118,34 @@ export default function Login() {
           </div>
 
           <h1 className="text-2xl font-bold text-white mb-2">Welcome back</h1>
-          <p className="text-muted text-sm mb-8">Sign in to your account to continue</p>
+          <p className="text-muted text-sm mb-6">Sign in to your account to continue</p>
+
+          {/* Role selector */}
+          <div className="mb-6">
+            <p className="text-xs text-muted uppercase tracking-wider font-semibold mb-3">Select Role (Demo)</p>
+            <div className="grid grid-cols-2 gap-2">
+              {ROLE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.role}
+                  type="button"
+                  onClick={() => setSelectedRole(opt.role)}
+                  className={`relative flex flex-col items-start gap-1 p-3 rounded-xl border text-left transition-all duration-200 ${
+                    selectedRole === opt.role
+                      ? 'border-cyan/40 bg-cyan/5 shadow-[0_0_0_2px_rgba(0,212,255,0.1)]'
+                      : 'border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className={selectedRole === opt.role ? 'text-cyan' : 'text-muted'}>{opt.icon}</span>
+                    <span className={`text-xs font-semibold ${selectedRole === opt.role ? 'text-white' : 'text-white/70'}`}>
+                      {opt.label}
+                    </span>
+                  </div>
+                  <span className="text-2xs text-muted line-clamp-1">{opt.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
@@ -122,7 +154,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               icon={<Mail className="w-4 h-4" />}
-              placeholder="admin@transitops.io"
+              placeholder={DEMO_USERS[selectedRole].email}
               error={error}
             />
 

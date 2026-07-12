@@ -15,6 +15,7 @@ const Trips = lazy(() => import('@/pages/Trips/Trips'));
 const Maintenance = lazy(() => import('@/pages/Maintenance/Maintenance'));
 const Finance = lazy(() => import('@/pages/Finance/Finance'));
 const Reports = lazy(() => import('@/pages/Reports/Reports'));
+const Settings = lazy(() => import('@/pages/Settings/Settings'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,6 +99,7 @@ export default function App() {
               <Route path="/maintenance" element={<Maintenance />} />
               <Route path="/finance" element={<Finance />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
 
             {/* Catch-all */}

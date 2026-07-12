@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Truck, Users, MapPin, Wrench,
   DollarSign, BarChart3, ChevronLeft, ChevronRight,
-  Zap,
+  Zap, Settings as SettingsIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useThemeStore } from '@/store/themeStore';
@@ -17,6 +17,7 @@ const navItems = [
   { path: '/maintenance', label: 'Maintenance', icon: Wrench },
   { path: '/finance', label: 'Finance', icon: DollarSign },
   { path: '/reports', label: 'Reports', icon: BarChart3 },
+  { path: '/settings', label: 'Settings', icon: SettingsIcon },
 ];
 
 export function Sidebar() {

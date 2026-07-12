@@ -1,9 +1,14 @@
 import { motion } from 'framer-motion';
-import { BarChart3, Download, Fuel, DollarSign, Users, Truck, TrendingUp } from 'lucide-react';
+import { Download, Fuel, Gauge, DollarSign, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
+import { KPICard } from '@/components/ui/KPICard';
+import { useVehicleStore } from '@/store/vehicleStore';
+import { useTripStore } from '@/store/tripStore';
+import { useFinanceStore } from '@/store/financeStore';
+import { useMaintenanceStore } from '@/store/maintenanceStore';
+import { formatCurrency } from '@/lib/utils';
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const stagger = {
   container: { animate: { transition: { staggerChildren: 0.08 } } },
@@ -13,7 +18,89 @@ const stagger = {
   },
 };
 
+const CHART_COLORS = ['#FF3366', '#FFB800', '#00D4FF', '#00C896', '#8B5CF6', '#EC4899', '#F59E0B'];
+
 export default function Reports() {
+  const vehicles = useVehicleStore((s) => s.vehicles);
+  const trips = useTripStore((s) => s.trips);
+  const totalFuelCost = useFinanceStore((s) => s.getTotalFuelCost());
+  const fuelLogs = useFinanceStore((s) => s.fuelLogs);
+  const totalMaintenanceCost = useMaintenanceStore((s) => s.getTotalMaintenanceCost());
+
+  const nonRetired = vehicles.filter(v => v.status !== 'RETIRED');
+  const onTripVehicles = vehicles.filter(v => v.status === 'ON_TRIP').length;
+
+  // Fuel Efficiency = Total Distance / Total Fuel
+  const completedTrips = trips.filter(t => t.status === 'COMPLETED');
+  const totalDistance = completedTrips.reduce((sum, t) => sum + (t.actual_distance_km ?? 0), 0);
+  const totalFuel = completedTrips.reduce((sum, t) => sum + (t.fuel_consumed_liters ?? 0), 0);
+  const fuelEfficiency = totalFuel > 0 ? (totalDistance / totalFuel).toFixed(1) : '0.0';
+
+  // Fleet Utilization
+  const fleetUtilization = nonRetired.length > 0 ? Math.round((onTripVehicles / nonRetired.length) * 100) : 0;
+
+  // Operational Cost
+  const totalOperationalCost = totalFuelCost + totalMaintenanceCost;
+
+  // Vehicle ROI = (Revenue − (Maintenance + Fuel)) / Acquisition Cost
+  const totalRevenue = trips.reduce((sum, t) => sum + (t.revenue ?? 0), 0);
+  const totalAcquisitionCost = vehicles.reduce((sum, v) => sum + v.acquisition_cost, 0);
+  const vehicleROI = totalAcquisitionCost > 0
+    ? (((totalRevenue - totalOperationalCost) / totalAcquisitionCost) * 100).toFixed(1)
+    : '0.0';
+
+  // Monthly revenue data for bar chart
+  const monthlyData: { month: string; revenue: number }[] = [];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  for (let i = 0; i < 12; i++) {
+    const monthTrips = completedTrips.filter(t => {
+      const d = new Date(t.completed_at ?? t.created_at);
+      return d.getMonth() === i;
+    });
+    monthlyData.push({
+      month: months[i],
+      revenue: monthTrips.reduce((sum, t) => sum + (t.revenue ?? 0), 0),
+    });
+  }
+
+  // Top costliest vehicles
+  const vehicleCosts = vehicles.map(v => {
+    const vFuel = fuelLogs.filter(f => f.vehicle_id === v.id).reduce((s, f) => s + f.cost, 0);
+    const vMaint = useMaintenanceStore.getState().getLogsByVehicle(v.id).reduce((s, l) => s + l.cost, 0);
+    return { name: v.registration_number, cost: vFuel + vMaint };
+  }).sort((a, b) => b.cost - a.cost).slice(0, 5);
+
+  // CSV Export
+  const exportCSV = () => {
+    const headers = ['Metric', 'Value'];
+    const rows = [
+      ['Fuel Efficiency (km/l)', fuelEfficiency],
+      ['Fleet Utilization (%)', String(fleetUtilization)],
+      ['Total Operational Cost', String(totalOperationalCost)],
+      ['Vehicle ROI (%)', vehicleROI],
+      ['Total Distance (km)', String(totalDistance)],
+      ['Total Fuel (liters)', String(totalFuel)],
+      ['Total Revenue', String(totalRevenue)],
+      ['Total Fuel Cost', String(totalFuelCost)],
+      ['Total Maintenance Cost', String(totalMaintenanceCost)],
+      ['', ''],
+      ['Top Costliest Vehicles', ''],
+      ...vehicleCosts.map(v => [v.name, String(v.cost)]),
+      ['', ''],
+      ['Monthly Revenue', ''],
+      ...monthlyData.map(m => [m.month, String(m.revenue)]),
+    ];
+
+    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `transitops-report-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <motion.div
       variants={stagger.container}
@@ -24,77 +111,83 @@ export default function Reports() {
       {/* Header */}
       <motion.div variants={stagger.item} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">Reports</h2>
-          <p className="text-sm text-muted mt-1">Generate and analyze comprehensive fleet reports.</p>
+          <h2 className="text-2xl font-bold text-white">Reports & Analytics</h2>
+          <p className="text-sm text-muted mt-1">ROI = (Revenue − (Maintenance + Fuel)) / Acquisition Cost</p>
         </div>
-        <Button variant="secondary" icon={<Download className="w-4 h-4" />} disabled>
-          Export Report
+        <Button variant="secondary" icon={<Download className="w-4 h-4" />} onClick={exportCSV}>
+          Export CSV
         </Button>
       </motion.div>
 
-      {/* Report type tabs */}
-      <motion.div variants={stagger.item}>
-        <Tabs defaultValue="fuel">
-          <TabsList>
-            <TabsTrigger value="fuel">Fuel Efficiency</TabsTrigger>
-            <TabsTrigger value="costs">Operational Costs</TabsTrigger>
-            <TabsTrigger value="drivers">Driver Performance</TabsTrigger>
-            <TabsTrigger value="fleet">Fleet Utilization</TabsTrigger>
-            <TabsTrigger value="roi">ROI Analysis</TabsTrigger>
-          </TabsList>
+      {/* 4 KPI Summary Cards */}
+      <motion.div variants={stagger.item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPICard title="Fuel Efficiency" value={Number(fuelEfficiency)} suffix=" km/l" icon={Fuel} color="cyan" />
+        <KPICard title="Fleet Utilization" value={fleetUtilization} suffix="%" icon={Gauge} color="emerald" />
+        <KPICard title="Operational Cost" value={totalOperationalCost} prefix="₹" icon={DollarSign} color="amber" />
+        <KPICard title="Vehicle ROI" value={Number(vehicleROI)} suffix="%" icon={TrendingUp} color="crimson" />
+      </motion.div>
 
-          <TabsContent value="fuel">
-            <Card className="min-h-[450px] flex items-center justify-center">
-              <EmptyState
-                icon={Fuel}
-                title="Fuel Efficiency Report"
-                description="Track fuel consumption trends, cost per kilometer, and identify optimization opportunities. Data will populate once trips and fuel records are logged."
-                actionLabel="Generate Report"
-                onAction={() => {}}
-              />
-            </Card>
-          </TabsContent>
+      {/* Charts Row */}
+      <motion.div variants={stagger.item} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Monthly Revenue */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Monthly Revenue</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            {totalRevenue === 0 ? (
+              <div className="flex items-center justify-center h-full text-muted text-sm">
+                No revenue data. Add revenue to trips to see this chart.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyData}>
+                  <XAxis dataKey="month" tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <RTooltip
+                    contentStyle={{ background: '#12121A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', fontSize: 12 }}
+                    formatter={(value: number) => [formatCurrency(value), 'Revenue']}
+                  />
+                  <Bar dataKey="revenue" radius={[6, 6, 0, 0]}>
+                    {monthlyData.map((_, idx) => (
+                      <Cell key={idx} fill="#6B9BD2" opacity={0.8} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
 
-          <TabsContent value="costs">
-            <Card className="min-h-[450px] flex items-center justify-center">
-              <EmptyState
-                icon={DollarSign}
-                title="Operational Costs Report"
-                description="Breakdown of all operational expenses including fuel, maintenance, insurance, and labor costs."
-              />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="drivers">
-            <Card className="min-h-[450px] flex items-center justify-center">
-              <EmptyState
-                icon={Users}
-                title="Driver Performance Report"
-                description="Compare driver safety scores, trip efficiency, and on-time delivery rates across your team."
-              />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="fleet">
-            <Card className="min-h-[450px] flex items-center justify-center">
-              <EmptyState
-                icon={Truck}
-                title="Fleet Utilization Report"
-                description="Analyze vehicle usage rates, idle time, and optimize asset allocation across your fleet."
-              />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="roi">
-            <Card className="min-h-[450px] flex items-center justify-center">
-              <EmptyState
-                icon={TrendingUp}
-                title="ROI Analysis"
-                description="Measure return on investment across all fleet operations and identify high-impact improvement areas."
-              />
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Top Costliest Vehicles */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Top Costliest Vehicles</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            {vehicleCosts.length === 0 || vehicleCosts.every(v => v.cost === 0) ? (
+              <div className="flex items-center justify-center h-full text-muted text-sm">
+                No cost data available yet.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={vehicleCosts} layout="vertical">
+                  <XAxis type="number" tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="name" type="category" tick={{ fill: '#fff', fontSize: 11 }} axisLine={false} tickLine={false} width={80} />
+                  <RTooltip
+                    contentStyle={{ background: '#12121A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', fontSize: 12 }}
+                    formatter={(value: number) => [formatCurrency(value), 'Cost']}
+                  />
+                  <Bar dataKey="cost" radius={[0, 6, 6, 0]}>
+                    {vehicleCosts.map((_, idx) => (
+                      <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} opacity={0.85} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
       </motion.div>
     </motion.div>
   );
