@@ -98,7 +98,7 @@ export default function Login() {
                 key={item.label}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: item.delay, duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                transition={{ delay: item.delay, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className="glass-card px-4 py-3 flex items-center gap-3"
               >
                 <span className="w-2 h-2 rounded-full bg-cyan animate-pulse-soft" />
@@ -114,7 +114,7 @@ export default function Login() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="w-full max-w-sm"
         >
           {/* Mobile logo */}

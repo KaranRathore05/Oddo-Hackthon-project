@@ -11,12 +11,13 @@ import { useMaintenanceStore } from '@/store/maintenanceStore';
 import { useFinanceStore } from '@/store/financeStore';
 import { useAuthStore } from '@/store/authStore';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const stagger = {
   container: { animate: { transition: { staggerChildren: 0.08 } } },
   item: {
     initial: { opacity: 0, y: 16 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] } },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
   },
 };
 
@@ -132,9 +133,12 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="flex-1">
             {recentTrips.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-muted text-sm">
-                No trips yet. Create your first trip from the Trips page.
-              </div>
+              <EmptyState 
+                title="No Trips Available" 
+                description="No recent trips found. Create your first trip from the Trips page." 
+                icon={MapPin} 
+                variant="compact" 
+              />
             ) : (
               <div className="space-y-3">
                 {recentTrips.map(trip => {
@@ -170,9 +174,12 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="flex-1">
             {recentMaintenance.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-muted text-sm">
-                No maintenance records yet.
-              </div>
+              <EmptyState 
+                title="No Data Available" 
+                description="No maintenance records found." 
+                icon={Wrench} 
+                variant="compact" 
+              />
             ) : (
               <div className="space-y-3">
                 {recentMaintenance.map(log => {

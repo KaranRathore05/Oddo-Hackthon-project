@@ -43,7 +43,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
         className={cn(
           variant === 'strong' ? 'glass-card-strong' : 'glass-card',
           !noPadding && 'p-6',
-          'transition-all duration-300',
+          'transition-all duration-500 ease-out',
           glowStyles[glow],
           className
         )}

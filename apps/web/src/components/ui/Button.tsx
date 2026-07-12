@@ -38,10 +38,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         whileTap={{ scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
         className={cn(
-          'relative inline-flex items-center justify-center rounded-xl font-medium',
-          'transition-all duration-200 ease-out',
-          'focus-visible:ring-2 focus-visible:ring-cyan/50 focus-visible:ring-offset-2 focus-visible:ring-offset-charcoal',
-          'disabled:opacity-50 disabled:pointer-events-none',
+          'relative inline-flex items-center justify-center font-medium transition-all duration-500 ease-out',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan/50 focus-visible:ring-offset-2 focus-visible:ring-offset-charcoal',
+          'disabled:pointer-events-none disabled:opacity-50 overflow-hidden',
           variants[variant],
           sizes[size],
           className

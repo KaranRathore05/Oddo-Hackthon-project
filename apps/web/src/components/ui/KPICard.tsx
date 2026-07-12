@@ -93,7 +93,7 @@ export function KPICard({
       whileHover={{ y: -2 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className={cn(
-        'group glass-card p-6 transition-all duration-300',
+        'group glass-card p-6 transition-all duration-500 ease-out',
         colors.glow,
         className
       )}

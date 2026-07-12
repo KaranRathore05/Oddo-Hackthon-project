@@ -51,7 +51,7 @@ export function Topbar() {
             'flex items-center gap-2 px-3 py-1.5 rounded-xl',
             'bg-white/[0.03] border border-white/[0.06]',
             'text-sm text-muted hover:text-white hover:border-white/10',
-            'transition-all duration-200'
+            'transition-all duration-500 ease-out'
           )}
         >
           <Search className="w-4 h-4" />
@@ -65,7 +65,7 @@ export function Topbar() {
         <button
           className={cn(
             'relative p-2 rounded-xl text-muted hover:text-white hover:bg-white/[0.03]',
-            'transition-all duration-200'
+            'transition-all duration-500 ease-out'
           )}
         >
           <Bell className="w-5 h-5" />
@@ -75,7 +75,7 @@ export function Topbar() {
         {/* User menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="rounded-full ring-2 ring-transparent hover:ring-white/10 transition-all duration-200">
+            <button className="rounded-full ring-2 ring-transparent hover:ring-white/10 transition-all duration-500 ease-out">
               <Avatar status="online">
                 <AvatarFallback>
                   {user?.name?.charAt(0) || 'A'}

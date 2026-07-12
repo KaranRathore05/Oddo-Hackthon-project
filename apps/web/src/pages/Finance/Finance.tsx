@@ -15,6 +15,7 @@ import { useTripStore } from '@/store/tripStore';
 import { useMaintenanceStore } from '@/store/maintenanceStore';
 import type { FuelLog, Expense, ExpenseCategory } from '@/types';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const EXPENSE_CATEGORIES: { value: ExpenseCategory; label: string }[] = [
   { value: 'TOLL', label: 'Toll' },
@@ -123,7 +124,7 @@ export default function Finance() {
     container: { animate: { transition: { staggerChildren: 0.08 } } },
     item: {
       initial: { opacity: 0, y: 16 },
-      animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] } },
+      animate: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
     },
   };
 
@@ -154,9 +155,11 @@ export default function Finance() {
       <motion.div variants={stagger.item}>
         <p className="text-xs text-muted uppercase tracking-wider font-semibold mb-3">Fuel Logs</p>
         {fuelLogs.length === 0 ? (
-          <Card className="min-h-[150px] flex items-center justify-center">
-            <p className="text-muted text-sm">No fuel records yet. Click "+ Log Fuel" to add one.</p>
-          </Card>
+          <EmptyState 
+            title="No Data Available" 
+            description="No fuel records yet. Click '+ Log Fuel' to add one." 
+            icon={Fuel} 
+          />
         ) : (
           <Table columns={fuelColumns} data={[...fuelLogs].reverse()} keyExtractor={(f) => f.id} />
         )}
@@ -166,9 +169,11 @@ export default function Finance() {
       <motion.div variants={stagger.item}>
         <p className="text-xs text-muted uppercase tracking-wider font-semibold mb-3">Other Expenses (Toll / Misc)</p>
         {expenses.length === 0 ? (
-          <Card className="min-h-[150px] flex items-center justify-center">
-            <p className="text-muted text-sm">No expenses yet. Click "+ Add Expense" to add one.</p>
-          </Card>
+          <EmptyState 
+            title="No Data Available" 
+            description="No expenses yet. Click '+ Add Expense' to add one." 
+            icon={DollarSign} 
+          />
         ) : (
           <Table columns={expenseColumns} data={[...expenses].reverse()} keyExtractor={(e) => e.id} />
         )}

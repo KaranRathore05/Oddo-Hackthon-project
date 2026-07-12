@@ -17,7 +17,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className="relative w-full">
         <div
           className={cn(
-            'relative flex items-center rounded-xl border transition-all duration-200',
+            'relative flex items-center rounded-xl border transition-all duration-500 ease-out',
             'bg-white/[0.03] backdrop-blur-sm',
             isFocused
               ? 'border-cyan/40 shadow-[0_0_0_3px_rgba(0,212,255,0.08)]'
@@ -28,7 +28,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         >
           {icon && (
             <span className={cn(
-              'pl-3.5 transition-colors duration-200',
+              'pl-3.5 transition-colors duration-500 ease-out',
               isFocused ? 'text-cyan' : 'text-muted'
             )}>
               {icon}
@@ -59,7 +59,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {label && (
             <span
               className={cn(
-                'absolute left-3.5 transition-all duration-200 pointer-events-none',
+                'absolute left-3.5 transition-all duration-500 ease-out pointer-events-none',
                 icon && 'left-10',
                 isFocused || hasValue
                   ? cn('top-2 text-2xs font-medium', isFocused ? 'text-cyan' : 'text-muted/70')

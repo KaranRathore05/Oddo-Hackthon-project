@@ -28,7 +28,7 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
             <div className="flex flex-col items-center gap-1.5">
               <div
                 className={cn(
-                  'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300',
+                  'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500 ease-out',
                   isCompleted && 'bg-emerald text-charcoal',
                   isCurrent && 'bg-cyan text-charcoal ring-4 ring-cyan/20',
                   !isCompleted && !isCurrent && 'bg-white/10 text-muted border border-white/10',

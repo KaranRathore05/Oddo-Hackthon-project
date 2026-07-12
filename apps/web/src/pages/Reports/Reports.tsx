@@ -8,6 +8,7 @@ import { useTripStore } from '@/store/tripStore';
 import { useFinanceStore } from '@/store/financeStore';
 import { useMaintenanceStore } from '@/store/maintenanceStore';
 import { formatCurrency } from '@/lib/utils';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, Cell } from 'recharts';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -16,7 +17,7 @@ const stagger = {
   container: { animate: { transition: { staggerChildren: 0.08 } } },
   item: {
     initial: { opacity: 0, y: 16 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] } },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
   },
 };
 
@@ -176,9 +177,12 @@ export default function Reports() {
           </CardHeader>
           <CardContent className="h-[300px]">
             {totalRevenue === 0 ? (
-              <div className="flex items-center justify-center h-full text-muted text-sm">
-                No revenue data. Add revenue to trips to see this chart.
-              </div>
+              <EmptyState 
+                title="No Data Available" 
+                description="No revenue data. Add revenue to trips to see this chart." 
+                icon={DollarSign} 
+                variant="compact" 
+              />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyData}>
@@ -207,9 +211,12 @@ export default function Reports() {
           </CardHeader>
           <CardContent className="h-[300px]">
             {vehicleCosts.length === 0 || vehicleCosts.every(v => v.cost === 0) ? (
-              <div className="flex items-center justify-center h-full text-muted text-sm">
-                No cost data available yet.
-              </div>
+              <EmptyState 
+                title="No Data Available" 
+                description="No cost data available yet." 
+                icon={TrendingUp} 
+                variant="compact" 
+              />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={vehicleCosts} layout="vertical">

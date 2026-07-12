@@ -64,7 +64,7 @@ export function Sidebar() {
                 className={({ isActive }) =>
                   cn(
                     'group relative flex items-center gap-3 px-3 py-2.5 rounded-xl',
-                    'text-sm font-medium transition-all duration-200',
+                    'text-sm font-medium transition-all duration-500 ease-out',
                     isActive
                       ? 'text-white bg-white/[0.06]'
                       : 'text-muted hover:text-white hover:bg-white/[0.03]',
@@ -126,7 +126,7 @@ export function Sidebar() {
             className={cn(
               'flex items-center justify-center w-full py-2.5 rounded-xl',
               'text-muted hover:text-white hover:bg-white/[0.03]',
-              'transition-all duration-200'
+              'transition-all duration-500 ease-out'
             )}
           >
             {sidebarCollapsed ? (

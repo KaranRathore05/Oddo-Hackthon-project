@@ -40,7 +40,7 @@ export function EmptyState({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
         'flex flex-col items-center justify-center text-center',
         variant === 'default' ? 'py-20 px-8' : 'py-10 px-4',
@@ -51,7 +51,7 @@ export function EmptyState({
       <motion.div
         initial={{ scale: 0.8 }}
         animate={{ scale: 1 }}
-        transition={{ delay: 0.1, type: 'spring', stiffness: 200, damping: 15 }}
+        transition={{ delay: 0.1, type: 'spring', stiffness: 100, damping: 20 }}
         className="relative mb-6"
       >
         <div className="absolute inset-0 rounded-full bg-cyan/5 blur-2xl scale-150" />
