@@ -38,8 +38,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             type={type}
             className={cn(
-              'w-full bg-transparent px-3.5 py-3 text-sm text-white',
-              'placeholder:text-muted/50',
+              'w-full bg-transparent px-3.5 py-3 text-sm text-white transition-colors',
+              isFocused || !label ? 'placeholder:text-muted/50' : 'placeholder:text-transparent',
               'focus:outline-none',
               icon && 'pl-2',
               label && 'pt-5 pb-1.5',
