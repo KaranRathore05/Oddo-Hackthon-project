@@ -1,63 +1,110 @@
-import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { useAuthStore } from '@/store/authStore';
+import { lazy, Suspense, type ReactNode } from 'react';
+import { Skeleton } from '@/components/ui/Skeleton';
 
-const App: React.FC = () => {
+// Lazy-loaded pages
+const Landing = lazy(() => import('@/pages/Landing/Landing'));
+const Login = lazy(() => import('@/pages/Auth/Login'));
+const Dashboard = lazy(() => import('@/pages/Dashboard/Dashboard'));
+const Vehicles = lazy(() => import('@/pages/Vehicles/Vehicles'));
+const Drivers = lazy(() => import('@/pages/Drivers/Drivers'));
+const Trips = lazy(() => import('@/pages/Trips/Trips'));
+const Maintenance = lazy(() => import('@/pages/Maintenance/Maintenance'));
+const Finance = lazy(() => import('@/pages/Finance/Finance'));
+const Reports = lazy(() => import('@/pages/Reports/Reports'));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    },
+  },
+});
+
+// Page loading fallback
+function PageLoader() {
   return (
-    <div className="app-container">
-      <header className="header">
-        <h1>TransitOps Dashboard</h1>
-        <div className="user-profile">Admin</div>
-      </header>
-      
-      <div className="main-content">
-        <aside className="sidebar">
-          <nav>
-            <ul>
-              <li className="active">Overview</li>
-              <li>Fleet Management</li>
-              <li>Routes & Schedules</li>
-              <li>Maintenance</li>
-              <li>Settings</li>
-            </ul>
-          </nav>
-        </aside>
-        
-        <main className="dashboard">
-          <section className="metrics">
-            <div className="card">
-              <h3>Active Vehicles</h3>
-              <p className="value">42 / 50</p>
-            </div>
-            <div className="card">
-              <h3>On-Time Performance</h3>
-              <p className="value">94%</p>
-            </div>
-            <div className="card">
-              <h3>Incidents Today</h3>
-              <p className="value">3</p>
-            </div>
-          </section>
-
-          <section className="recent-activity">
-            <h2>Recent Activity</h2>
-            <div className="activity-list">
-              <div className="activity-item">
-                <span className="time">10:32 AM</span>
-                <span className="desc">Bus 204 delayed by 10 minutes on Route 7.</span>
-              </div>
-              <div className="activity-item">
-                <span className="time">09:15 AM</span>
-                <span className="desc">Routine maintenance completed for Bus 102.</span>
-              </div>
-              <div className="activity-item">
-                <span className="time">08:00 AM</span>
-                <span className="desc">Morning shift started smoothly. All drivers reported.</span>
-              </div>
-            </div>
-          </section>
-        </main>
+    <div className="p-6 space-y-4">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-4 w-96" />
+      <div className="grid grid-cols-4 gap-4 mt-6">
+        <Skeleton variant="rectangular" className="h-32" />
+        <Skeleton variant="rectangular" className="h-32" />
+        <Skeleton variant="rectangular" className="h-32" />
+        <Skeleton variant="rectangular" className="h-32" />
       </div>
     </div>
   );
-};
+}
 
-export default App;
+// Protected route wrapper
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+}
+
+// Public-only route wrapper (redirect if already logged in)
+function PublicRoute({ children }: { children: ReactNode }) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return <>{children}</>;
+}
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* Public routes */}
+            <Route
+              path="/"
+              element={
+                <PublicRoute>
+                  <Landing />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              }
+            />
+
+            {/* Protected routes — wrapped in AppLayout */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/vehicles" element={<Vehicles />} />
+              <Route path="/drivers" element={<Drivers />} />
+              <Route path="/trips" element={<Trips />} />
+              <Route path="/maintenance" element={<Maintenance />} />
+              <Route path="/finance" element={<Finance />} />
+              <Route path="/reports" element={<Reports />} />
+            </Route>
+
+            {/* Catch-all */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+}
