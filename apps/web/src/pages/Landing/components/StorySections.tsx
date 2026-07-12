@@ -137,13 +137,13 @@ function SectionDrivers() {
         >
           <div className="absolute inset-0 bg-emerald/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-full bg-charcoal border border-white/10 overflow-hidden relative">
-              <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="Driver" className="w-full h-full object-cover opacity-80 mix-blend-luminosity" />
+            <div className="w-16 h-16 rounded-full bg-charcoal border border-white/10 overflow-hidden relative flex items-center justify-center">
+              <Shield className="w-8 h-8 text-white/50" />
               <div className="absolute inset-0 shadow-inner-glow" />
             </div>
             <div>
-              <h4 className="text-white font-medium text-lg">Alex Mercer</h4>
-              <p className="text-emerald text-sm font-mono tracking-widest">ID: DL-2026</p>
+              <h4 className="text-white font-medium text-lg">Driver Profile</h4>
+              <p className="text-emerald text-sm font-mono tracking-widest">ID: ****</p>
             </div>
           </div>
           
@@ -304,20 +304,17 @@ function SectionReports() {
           </p>
         </div>
         
-        {/* Counter */}
-        <div className="p-8 rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-glass">
-          <p className="text-sm text-muted mb-2 font-mono uppercase tracking-widest">Total Fleet Savings</p>
-          <div className="flex items-baseline gap-1">
-            <span className="text-3xl text-emerald">$</span>
+        {/* Animated Analytics Chart */}
+        <div className="p-8 rounded-3xl border border-white/10 bg-white/[0.02] backdrop-blur-xl shadow-glass w-full max-w-sm flex items-end justify-between h-40 gap-2">
+          {[40, 70, 45, 90, 60, 100].map((height, i) => (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-7xl font-bold text-white tracking-tighter"
-            >
-              2.4<span className="text-4xl text-white/50">M</span>
-            </motion.div>
-          </div>
+              key={i}
+              initial={{ height: 0 }}
+              whileInView={{ height: `${height}%` }}
+              transition={{ duration: 1, delay: i * 0.1, ease: "easeOut" }}
+              className="w-full bg-emerald/20 border-t border-emerald/50 rounded-t-sm"
+            />
+          ))}
         </div>
       </div>
     </StorySection>

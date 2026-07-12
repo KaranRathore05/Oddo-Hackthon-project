@@ -26,7 +26,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           className={cn(
             'glass-card-hover',
-            !noPadding && 'p-6',
+            !noPadding && 'p-5',
             glowStyles[glow],
             className
           )}
@@ -42,7 +42,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
         ref={ref}
         className={cn(
           variant === 'strong' ? 'glass-card-strong' : 'glass-card',
-          !noPadding && 'p-6',
+          !noPadding && 'p-5',
           'transition-all duration-500 ease-out',
           glowStyles[glow],
           className

@@ -28,7 +28,7 @@ export function Sidebar() {
       <motion.aside
         initial={false}
         animate={{ width: sidebarCollapsed ? 72 : 260 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className={cn(
           'fixed left-0 top-0 z-30 h-screen flex flex-col',
           'bg-slate/80 backdrop-blur-xl border-r border-white/[0.06]',
@@ -43,9 +43,10 @@ export function Sidebar() {
           <AnimatePresence>
             {!sidebarCollapsed && (
               <motion.span
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
+                initial={{ opacity: 0, width: 0, display: 'none' }}
+                animate={{ opacity: 1, width: 'auto', display: 'block' }}
+                exit={{ opacity: 0, width: 0, transition: { duration: 0.2 } }}
+                transition={{ duration: 0.4 }}
                 className="text-lg font-bold text-white whitespace-nowrap overflow-hidden"
               >
                 Transit<span className="text-cyan">Ops</span>
@@ -92,9 +93,10 @@ export function Sidebar() {
                     <AnimatePresence>
                       {!sidebarCollapsed && (
                         <motion.span
-                          initial={{ opacity: 0, width: 0 }}
-                          animate={{ opacity: 1, width: 'auto' }}
-                          exit={{ opacity: 0, width: 0 }}
+                          initial={{ opacity: 0, width: 0, display: 'none' }}
+                          animate={{ opacity: 1, width: 'auto', display: 'block' }}
+                          exit={{ opacity: 0, width: 0, transition: { duration: 0.2 } }}
+                          transition={{ duration: 0.4 }}
                           className="whitespace-nowrap overflow-hidden"
                         >
                           {item.label}
