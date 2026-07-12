@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Download, Fuel, Gauge, DollarSign, TrendingUp } from 'lucide-react';
+import { Download, Fuel, Gauge, DollarSign, TrendingUp, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { KPICard } from '@/components/ui/KPICard';
@@ -9,6 +9,8 @@ import { useFinanceStore } from '@/store/financeStore';
 import { useMaintenanceStore } from '@/store/maintenanceStore';
 import { formatCurrency } from '@/lib/utils';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, Cell } from 'recharts';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const stagger = {
   container: { animate: { transition: { staggerChildren: 0.08 } } },
@@ -101,6 +103,39 @@ export default function Reports() {
     URL.revokeObjectURL(url);
   };
 
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(20);
+    doc.text('TransitOps Report', 14, 22);
+    doc.setFontSize(11);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+
+    // KPI Summary Table
+    autoTable(doc, {
+      startY: 40,
+      head: [['KPI Summary', 'Value']],
+      body: [
+        ['Fuel Efficiency (km/l)', fuelEfficiency],
+        ['Fleet Utilization (%)', `${fleetUtilization}%`],
+        ['Total Operational Cost', formatCurrency(totalOperationalCost)],
+        ['Vehicle ROI (%)', `${vehicleROI}%`],
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [41, 128, 185] },
+    });
+
+    // Top Costliest Vehicles
+    autoTable(doc, {
+      startY: (doc as any).lastAutoTable.finalY + 15,
+      head: [['Top Costliest Vehicles', 'Cost']],
+      body: vehicleCosts.map(v => [v.name, formatCurrency(v.cost)]),
+      theme: 'grid',
+      headStyles: { fillColor: [192, 57, 43] },
+    });
+
+    doc.save(`transitops-report-${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
   return (
     <motion.div
       variants={stagger.container}
@@ -114,9 +149,14 @@ export default function Reports() {
           <h2 className="text-2xl font-bold text-white">Reports & Analytics</h2>
           <p className="text-sm text-muted mt-1">ROI = (Revenue − (Maintenance + Fuel)) / Acquisition Cost</p>
         </div>
-        <Button variant="secondary" icon={<Download className="w-4 h-4" />} onClick={exportCSV}>
-          Export CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" icon={<FileText className="w-4 h-4" />} onClick={exportPDF}>
+            Export PDF
+          </Button>
+          <Button variant="secondary" icon={<Download className="w-4 h-4" />} onClick={exportCSV}>
+            Export CSV
+          </Button>
+        </div>
       </motion.div>
 
       {/* 4 KPI Summary Cards */}
@@ -145,10 +185,11 @@ export default function Reports() {
                   <XAxis dataKey="month" tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <RTooltip
+                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                     contentStyle={{ background: '#12121A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', fontSize: 12 }}
                     formatter={(value: number) => [formatCurrency(value), 'Revenue']}
                   />
-                  <Bar dataKey="revenue" radius={[6, 6, 0, 0]}>
+                  <Bar dataKey="revenue" radius={[6, 6, 0, 0]} activeBar={false}>
                     {monthlyData.map((_, idx) => (
                       <Cell key={idx} fill="#6B9BD2" opacity={0.8} />
                     ))}
@@ -175,10 +216,11 @@ export default function Reports() {
                   <XAxis type="number" tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis dataKey="name" type="category" tick={{ fill: '#fff', fontSize: 11 }} axisLine={false} tickLine={false} width={80} />
                   <RTooltip
+                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                     contentStyle={{ background: '#12121A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, color: '#fff', fontSize: 12 }}
                     formatter={(value: number) => [formatCurrency(value), 'Cost']}
                   />
-                  <Bar dataKey="cost" radius={[0, 6, 6, 0]}>
+                  <Bar dataKey="cost" radius={[0, 6, 6, 0]} activeBar={false}>
                     {vehicleCosts.map((_, idx) => (
                       <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} opacity={0.85} />
                     ))}

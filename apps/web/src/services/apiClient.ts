@@ -30,10 +30,14 @@ class ApiClient {
     const { skipAuth = false, ...fetchOptions } = options;
 
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
       ...(skipAuth ? {} : this.getAuthHeaders()),
       ...fetchOptions.headers,
     };
+
+    // Only set application/json if it's not FormData
+    if (!(fetchOptions.body instanceof FormData)) {
+      (headers as Record<string, string>)['Content-Type'] = 'application/json';
+    }
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...fetchOptions,
@@ -55,10 +59,11 @@ class ApiClient {
   }
 
   async post<T>(endpoint: string, body?: unknown, options?: RequestOptions): Promise<T> {
+    const isFormData = body instanceof FormData;
     return this.request<T>(endpoint, {
       ...options,
       method: 'POST',
-      body: body ? JSON.stringify(body) : undefined,
+      body: isFormData ? (body as FormData) : (body ? JSON.stringify(body) : undefined),
     });
   }
 

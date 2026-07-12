@@ -1,12 +1,14 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Command } from 'cmdk';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Truck, Users, MapPin, Wrench,
-  DollarSign, BarChart3, Search,
+  DollarSign, BarChart3, Search, Car, User, Route
 } from 'lucide-react';
 import { useThemeStore } from '@/store/themeStore';
+import { searchService } from '@/services/searchService';
+import type { SearchResult } from '@/types';
 import { cn } from '@/lib/utils';
 
 const navCommands = [
@@ -22,6 +24,42 @@ const navCommands = [
 export function CommandPalette() {
   const { commandPaletteOpen, setCommandPaletteOpen } = useThemeStore();
   const navigate = useNavigate();
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!commandPaletteOpen) {
+      setQuery('');
+      setResults([]);
+    }
+  }, [commandPaletteOpen]);
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (query.length >= 2) {
+        setLoading(true);
+        try {
+          const res = await searchService.search(query);
+          setResults(res);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const getIcon = (type: string) => {
+    if (type === 'vehicle') return <Car className="w-4 h-4 text-cyan" />;
+    if (type === 'driver') return <User className="w-4 h-4 text-amber" />;
+    return <Route className="w-4 h-4 text-emerald" />;
+  };
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -69,7 +107,9 @@ export function CommandPalette() {
               <div className="flex items-center gap-2 px-4 border-b border-white/[0.06]">
                 <Search className="w-4 h-4 text-muted shrink-0" />
                 <Command.Input
-                  placeholder="Type a command or search..."
+                  value={query}
+                  onValueChange={setQuery}
+                  placeholder="Type a command or search globally..."
                   className="w-full py-4 bg-transparent text-sm text-white placeholder:text-muted/50 outline-none"
                 />
               </div>
@@ -100,6 +140,37 @@ export function CommandPalette() {
                     </Command.Item>
                   ))}
                 </Command.Group>
+
+                {results.length > 0 && (
+                  <Command.Group heading="Global Search Results" className="[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-2xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:text-muted [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider">
+                    {results.map((result) => (
+                      <Command.Item
+                        key={`${result.type}-${result.id}`}
+                        value={`${result.title} ${result.subtitle}`}
+                        onSelect={() => {
+                          navigate(result.url);
+                          setCommandPaletteOpen(false);
+                        }}
+                        className={cn(
+                          'flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer',
+                          'text-sm text-white/70',
+                          'data-[selected=true]:bg-white/[0.06] data-[selected=true]:text-white',
+                          'transition-colors duration-100'
+                        )}
+                      >
+                        {getIcon(result.type)}
+                        <div className="flex flex-col">
+                          <span className="font-medium text-white">{result.title}</span>
+                          <span className="text-xs text-muted">{result.subtitle}</span>
+                        </div>
+                      </Command.Item>
+                    ))}
+                  </Command.Group>
+                )}
+                
+                {loading && (
+                  <div className="py-4 text-center text-sm text-muted">Searching...</div>
+                )}
               </Command.List>
 
               <div className="flex items-center justify-between px-4 py-2.5 border-t border-white/[0.06]">

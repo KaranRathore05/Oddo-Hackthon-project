@@ -42,6 +42,7 @@ model Vehicle {
   maintenance_logs MaintenanceLog[]
   fuel_logs       FuelLog[]
   expenses        Expense[]
+  documents       VehicleDocument[]
 }
 
 // ─── Driver ──────────────────────────────────────────────────
@@ -131,3 +132,15 @@ model Expense {
   vehicle Vehicle? @relation(fields: [vehicle_id], references: [id])
   trip    Trip?    @relation(fields: [trip_id], references: [id])
 }
+
+// ─── VehicleDocument ─────────────────────────────────────────
+model VehicleDocument {
+  id         String   @id @default(uuid())
+  vehicle_id String
+  title      String
+  file_url   String
+  created_at DateTime @default(now())
+
+  vehicle Vehicle @relation(fields: [vehicle_id], references: [id])
+}
+

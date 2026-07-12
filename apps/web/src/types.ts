@@ -105,6 +105,22 @@ export interface Expense {
   created_at: string;
 }
 
+export interface VehicleDocument {
+  id: string;
+  vehicle_id: string;
+  title: string;
+  file_url: string;
+  created_at: string;
+}
+
+export interface SearchResult {
+  id: string;
+  type: 'vehicle' | 'driver' | 'trip';
+  title: string;
+  subtitle: string;
+  url: string;
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────
 
 export function generateId(): string {

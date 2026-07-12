@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Truck, Plus, Search, Edit, Archive } from 'lucide-react';
+import { Truck, Plus, Search, Edit, Archive, FileText, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -12,7 +12,8 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/Dialog';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 import { useVehicleStore } from '@/store/vehicleStore';
-import type { Vehicle, VehicleType, VehicleStatus } from '@/types';
+import { vehicleService } from '@/services/vehicleService';
+import type { Vehicle, VehicleType, VehicleStatus, VehicleDocument } from '@/types';
 import { formatCurrency } from '@/lib/utils';
 
 const VEHICLE_TYPES: { value: VehicleType; label: string }[] = [
@@ -39,6 +40,10 @@ export default function Vehicles() {
   const [showForm, setShowForm] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [retireTarget, setRetireTarget] = useState<Vehicle | null>(null);
+  const [docsTarget, setDocsTarget] = useState<Vehicle | null>(null);
+  const [documents, setDocuments] = useState<VehicleDocument[]>([]);
+  const [docForm, setDocForm] = useState({ title: '', file: null as File | null });
+  const [docLoading, setDocLoading] = useState(false);
   const [form, setForm] = useState(initialForm);
   const [formError, setFormError] = useState('');
 
@@ -116,6 +121,35 @@ export default function Vehicles() {
     setRetireTarget(null);
   };
 
+  const openDocs = async (v: Vehicle) => {
+    setDocsTarget(v);
+    setDocForm({ title: '', file: null });
+    setDocLoading(true);
+    try {
+      const docs = await vehicleService.getVehicleDocuments(v.id);
+      setDocuments(docs);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDocLoading(false);
+    }
+  };
+
+  const handleUploadDoc = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!docsTarget || !docForm.title || !docForm.file) return;
+    setDocLoading(true);
+    try {
+      const newDoc = await vehicleService.uploadVehicleDocument(docsTarget.id, docForm.file, docForm.title);
+      setDocuments([newDoc, ...documents]);
+      setDocForm({ title: '', file: null });
+    } catch (err) {
+      console.error('Failed to upload', err);
+    } finally {
+      setDocLoading(false);
+    }
+  };
+
 
   const columns = [
     { key: 'registration_number', header: 'Reg. Number', render: (v: Vehicle) => (
@@ -132,11 +166,14 @@ export default function Vehicles() {
     { key: 'status', header: 'Status', render: (v: Vehicle) => <StatusBadge status={v.status} /> },
     { key: 'actions', header: '', render: (v: Vehicle) => (
       <div className="flex items-center gap-1">
-        <button onClick={(e) => { e.stopPropagation(); openEdit(v); }} className="p-1.5 rounded-lg hover:bg-white/5 text-muted hover:text-white transition-colors">
+        <button onClick={(e) => { e.stopPropagation(); openDocs(v); }} className="p-1.5 rounded-lg hover:bg-white/5 text-muted hover:text-cyan transition-colors" title="Documents">
+          <FileText className="w-3.5 h-3.5" />
+        </button>
+        <button onClick={(e) => { e.stopPropagation(); openEdit(v); }} className="p-1.5 rounded-lg hover:bg-white/5 text-muted hover:text-white transition-colors" title="Edit">
           <Edit className="w-3.5 h-3.5" />
         </button>
         {v.status !== 'RETIRED' && v.status !== 'ON_TRIP' && (
-          <button onClick={(e) => { e.stopPropagation(); setRetireTarget(v); }} className="p-1.5 rounded-lg hover:bg-crimson/10 text-muted hover:text-crimson transition-colors">
+          <button onClick={(e) => { e.stopPropagation(); setRetireTarget(v); }} className="p-1.5 rounded-lg hover:bg-crimson/10 text-muted hover:text-crimson transition-colors" title="Retire">
             <Archive className="w-3.5 h-3.5" />
           </button>
         )}
@@ -278,6 +315,72 @@ export default function Vehicles() {
         variant="warning"
         onConfirm={handleRetire}
       />
+
+      {/* Documents Dialog */}
+      <Dialog open={!!docsTarget} onOpenChange={(open) => !open && setDocsTarget(null)}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Documents for {docsTarget?.registration_number}</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4 space-y-6">
+            <form onSubmit={handleUploadDoc} className="p-4 bg-white/[0.02] border border-white/10 rounded-xl space-y-3">
+              <h4 className="text-sm font-medium text-white mb-2">Upload New Document</h4>
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <Input 
+                    placeholder="Document Title (e.g. RC Book)" 
+                    value={docForm.title}
+                    onChange={e => setDocForm(f => ({ ...f, title: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="flex-1">
+                  <input 
+                    type="file" 
+                    onChange={e => setDocForm(f => ({ ...f, file: e.target.files?.[0] || null }))}
+                    className="w-full text-sm text-muted file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20"
+                    required
+                  />
+                </div>
+                <Button type="submit" disabled={docLoading} icon={<Upload className="w-4 h-4" />}>
+                  {docLoading ? 'Uploading...' : 'Upload'}
+                </Button>
+              </div>
+            </form>
+
+            <div>
+              <h4 className="text-sm font-medium text-white mb-3">Uploaded Documents</h4>
+              {docLoading && documents.length === 0 ? (
+                <p className="text-sm text-muted">Loading documents...</p>
+              ) : documents.length === 0 ? (
+                <p className="text-sm text-muted text-center py-4 border border-dashed border-white/10 rounded-xl">No documents uploaded yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {documents.map(doc => (
+                    <div key={doc.id} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-5 h-5 text-cyan" />
+                        <div>
+                          <p className="text-sm font-medium text-white">{doc.title}</p>
+                          <p className="text-xs text-muted">Uploaded on {new Date(doc.created_at).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                      <a 
+                        href={`http://localhost:4000${doc.file_url}`}
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="text-sm text-cyan hover:underline"
+                      >
+                        View File
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }

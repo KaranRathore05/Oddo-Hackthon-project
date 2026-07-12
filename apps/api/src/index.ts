@@ -11,6 +11,10 @@ import tripRoutes from './trips/routes.js';
 import maintenanceRoutes from './maintenance/routes.js';
 import financeRoutes from './fuel-expense/routes.js';
 import dashboardRoutes from './dashboard/routes.js';
+import documentRoutes from './documents/routes.js';
+import searchRoutes from './search/routes.js';
+import { startCronJobs } from './cron/reminders.js';
+import path from 'path';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -27,6 +31,9 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// ─── Static files ───────────────────────────────────────────
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 // ─── Routes ─────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
@@ -35,6 +42,8 @@ app.use('/api/trips', tripRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api', documentRoutes);
+app.use('/api', searchRoutes);
 
 // ─── Error handler (must be last) ───────────────────────────
 app.use(errorHandler);
@@ -43,6 +52,9 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`\n🚀 TransitOps API running at http://localhost:${PORT}`);
   console.log(`   Health check: http://localhost:${PORT}/api/health\n`);
+  
+  // Start background jobs
+  startCronJobs();
 });
 
 export default app;
